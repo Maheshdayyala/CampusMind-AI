@@ -42,6 +42,7 @@ let StudyPlannerTools = class StudyPlannerTools {
             .filter((m) => m.daysSinceReview >= threshold)
             .sort((a, b) => b.daysSinceReview - a.daysSinceReview);
         return {
+            studentId: input.studentId,
             daysThreshold: threshold,
             count: overdue.length,
             results: overdue,

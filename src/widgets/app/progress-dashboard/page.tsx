@@ -36,19 +36,19 @@ interface ProgressDashboardData {
 }
 
 function confidenceColor(score: number): string {
-  return score >= 0.7 ? '#16a34a' : score >= 0.4 ? '#ca8a04' : '#dc2626';
+  return score >= 70 ? '#16a34a' : score >= 40 ? '#ca8a04' : '#dc2626';
 }
 
 function confidenceBg(score: number): string {
-  return score >= 0.7 ? '#052e16' : score >= 0.4 ? '#422006' : '#450a0a';
+  return score >= 70 ? '#052e16' : score >= 40 ? '#422006' : '#450a0a';
 }
 
 function confidenceBgLight(score: number): string {
-  return score >= 0.7 ? '#dcfce7' : score >= 0.4 ? '#fef9c3' : '#fee2e2';
+  return score >= 70 ? '#dcfce7' : score >= 40 ? '#fef9c3' : '#fee2e2';
 }
 
 function barWidth(score: number): string {
-  return `${Math.round(score * 100)}%`;
+  return `${Math.round(score)}%`;
 }
 
 function activityIcon(type: string): string {
@@ -152,7 +152,7 @@ export default function ProgressDashboardWidget() {
               >
                 <StatCard
                   label="Avg Confidence"
-                  value={`${Math.round(overview.averageConfidence * 100)}%`}
+                  value={`${overview.averageConfidence}%`}
                   color={confidenceColor(overview.averageConfidence)}
                   cardBg={cardBg}
                   border={border}
@@ -212,7 +212,7 @@ export default function ProgressDashboardWidget() {
                               )}
                             </div>
                             <span style={{ fontSize: 12, fontWeight: 700, color: cColor }}>
-                              {Math.round(item.confidenceScore * 100)}%
+                              {item.confidenceScore}%
                             </span>
                           </div>
                           <div

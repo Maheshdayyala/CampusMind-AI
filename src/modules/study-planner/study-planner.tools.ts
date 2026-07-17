@@ -46,6 +46,7 @@ export class StudyPlannerTools {
       .sort((a, b) => b.daysSinceReview - a.daysSinceReview);
 
     return {
+      studentId: input.studentId,
       daysThreshold: threshold,
       count: overdue.length,
       results: overdue,

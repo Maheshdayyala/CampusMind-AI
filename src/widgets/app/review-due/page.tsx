@@ -6,32 +6,29 @@ import { useWidgetSDK, useTheme } from '@nitrostack/widgets';
 export const dynamic = 'force-dynamic';
 
 interface ReviewEntry {
-  id: string;
-  subject: string;
-  topic: string;
-  note: string;
-  imageUrl?: string;
+  conceptId: string;
+  conceptName: string;
+  courseCode: string | null;
+  confidenceScore: number;
+  rawScore: number;
   lastReviewedAt: string;
-  reviewCount: number;
   daysSinceReview: number;
+  timesWrong: number;
 }
 
 interface ReviewData {
+  studentId: string;
   daysThreshold: number;
   count: number;
   results: ReviewEntry[];
 }
 
-function initials(subject: string): string {
-  return (subject || '?')
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w.charAt(0).toUpperCase())
-    .join('');
-}
-
 function overdueColor(days: number): string {
   return days >= 14 ? '#dc2626' : days >= 7 ? '#ea580c' : '#d97706';
+}
+
+function confidenceColor(score: number): string {
+  return score >= 0.7 ? '#16a34a' : score >= 0.4 ? '#ca8a04' : '#dc2626';
 }
 
 export default function ReviewDueWidget() {
@@ -53,21 +50,22 @@ export default function ReviewDueWidget() {
   const notReady = !isReady;
   const noData = !data;
 
-  const handleMarkReviewed = async (id: string) => {
+  const threshold = data?.daysThreshold ?? 3;
+  const studentId = data?.studentId ?? '';
+  const results = data?.results ?? [];
+
+  const handleMarkReviewed = async (conceptId: string) => {
     if (!callTool) return;
-    setBusy(id);
+    setBusy(conceptId);
     try {
-      await callTool('mark_reviewed', { id });
-      setReviewed((prev) => ({ ...prev, [id]: true }));
+      await callTool('mark_reviewed', { studentId, conceptId });
+      setReviewed((prev) => ({ ...prev, [conceptId]: true }));
     } catch {
       // keep overdue state on failure
     } finally {
       setBusy(null);
     }
   };
-
-  const threshold = data?.daysThreshold ?? 3;
-  const results = data?.results ?? [];
 
   return (
     <div
@@ -116,94 +114,75 @@ export default function ReviewDueWidget() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {results.map((entry) => {
-                const done = reviewed[entry.id];
-                const badgeColor = overdueColor(entry.daysSinceReview ?? 0);
+                const done = reviewed[entry.conceptId];
+                const days = entry.daysSinceReview ?? 0;
+                const badgeColor = overdueColor(days);
+                const confPct = Math.round((entry.confidenceScore ?? 0) * 100);
                 return (
                   <div
-                    key={entry.id}
+                    key={entry.conceptId}
                     style={{
                       background: cardBg,
                       borderRadius: 12,
                       border: `1px solid ${border}`,
-                      overflow: 'hidden',
+                      padding: 14,
                       display: 'flex',
+                      flexDirection: 'column',
+                      gap: 8,
                       opacity: done ? 0.6 : 1,
                       transition: 'opacity 0.2s',
                     }}
                   >
-                    <div
-                      style={{
-                        position: 'relative',
-                        width: 96,
-                        minWidth: 96,
-                        background: isDark ? '#334155' : '#e2e8f0',
-                      }}
-                    >
-                      {entry.imageUrl ? (
-                        <img
-                          src={entry.imageUrl}
-                          alt={entry.subject}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                        />
-                      ) : (
-                        <div
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: 22,
-                            fontWeight: 700,
-                            color: '#fff',
-                            background: primary,
-                          }}
-                        >
-                          {initials(entry.subject)}
-                        </div>
-                      )}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                      <div>
+                        {entry.courseCode ? (
+                          <div style={{ fontSize: 11, color: muted, fontWeight: 600 }}>{entry.courseCode}</div>
+                        ) : null}
+                        <div style={{ fontSize: 15, fontWeight: 700, lineHeight: 1.3 }}>{entry.conceptName}</div>
+                      </div>
+                      <span
+                        style={{
+                          background: done ? '#16a34a' : badgeColor,
+                          color: '#fff',
+                          fontSize: 11,
+                          fontWeight: 700,
+                          padding: '4px 9px',
+                          borderRadius: 999,
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {done ? 'reviewed ✓' : `${days}d overdue`}
+                      </span>
                     </div>
 
-                    <div style={{ padding: 12, flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
-                        <div>
-                          <div style={{ fontSize: 11, color: muted, fontWeight: 600 }}>{entry.subject}</div>
-                          <div style={{ fontSize: 15, fontWeight: 700, lineHeight: 1.3 }}>{entry.topic}</div>
-                        </div>
-                        <span
-                          style={{
-                            background: done ? '#16a34a' : badgeColor,
-                            color: '#fff',
-                            fontSize: 11,
-                            fontWeight: 700,
-                            padding: '4px 9px',
-                            borderRadius: 999,
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {done ? 'reviewed ✓' : `${entry.daysSinceReview ?? 0}d overdue`}
+                    <div style={{ display: 'flex', gap: 14, fontSize: 12, color: muted, flexWrap: 'wrap' }}>
+                      <span>
+                        Confidence:{' '}
+                        <span style={{ color: confidenceColor(entry.confidenceScore ?? 0), fontWeight: 700 }}>
+                          {confPct}%
                         </span>
-                      </div>
-                      <div style={{ fontSize: 12, color: muted, lineHeight: 1.4 }}>{entry.note}</div>
-                      <div style={{ marginTop: 6 }}>
-                        <button
-                          onClick={() => handleMarkReviewed(entry.id)}
-                          disabled={done || busy === entry.id}
-                          style={{
-                            border: 'none',
-                            borderRadius: 8,
-                            padding: '6px 12px',
-                            fontSize: 12,
-                            fontWeight: 600,
-                            cursor: done ? 'default' : 'pointer',
-                            color: '#fff',
-                            background: done ? '#16a34a' : primary,
-                            opacity: busy === entry.id ? 0.7 : 1,
-                          }}
-                        >
-                          {done ? 'Reviewed' : busy === entry.id ? 'Saving…' : 'Mark reviewed'}
-                        </button>
-                      </div>
+                      </span>
+                      <span>{entry.timesWrong ?? 0}x wrong</span>
+                    </div>
+
+                    <div>
+                      <button
+                        onClick={() => handleMarkReviewed(entry.conceptId)}
+                        disabled={done || busy === entry.conceptId}
+                        style={{
+                          border: 'none',
+                          borderRadius: 8,
+                          padding: '6px 12px',
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: done ? 'default' : 'pointer',
+                          color: '#fff',
+                          background: done ? '#16a34a' : primary,
+                          opacity: busy === entry.conceptId ? 0.7 : 1,
+                        }}
+                      >
+                        {done ? 'Reviewed' : busy === entry.conceptId ? 'Saving…' : 'Mark reviewed'}
+                      </button>
                     </div>
                   </div>
                 );

@@ -279,6 +279,7 @@ __decorate([
             query: z.string().describe('Keyword or vague phrase to search logged topics'),
         }),
     }),
+    Widget('recall-list'),
     UseGuards(JwtGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),

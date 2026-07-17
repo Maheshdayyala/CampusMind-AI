@@ -210,6 +210,7 @@ export class AcademicMemoryTools {
       query: z.string().describe('Keyword or vague phrase to search logged topics'),
     }),
   })
+  @Widget('recall-list')
   @UseGuards(JwtGuard)
   async recallTopic(input: { studentId: string; query: string }, ctx: ExecutionContext) {
     const { studentId, query } = input;

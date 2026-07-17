@@ -6,12 +6,10 @@ export const dynamic = 'force-dynamic';
 
 interface RecallEntry {
   id: string;
-  subject: string;
-  topic: string;
-  note: string;
-  imageUrl?: string;
-  loggedAt: string;
-  reviewCount: number;
+  summary: string;
+  type: string;
+  timestamp: string;
+  channel: string;
 }
 
 interface RecallData {
@@ -31,14 +29,6 @@ function formatWhen(iso: string): string {
   } catch {
     return iso;
   }
-}
-
-function initials(subject: string): string {
-  return (subject || '?')
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w.charAt(0).toUpperCase())
-    .join('');
 }
 
 export default function RecallListWidget() {
@@ -121,72 +111,34 @@ export default function RecallListWidget() {
                 flexDirection: 'column',
               }}
             >
-              <div
-                style={{
-                  position: 'relative',
-                  width: '100%',
-                  aspectRatio: '16 / 9',
-                  background: isDark ? '#334155' : '#e2e8f0',
-                }}
-              >
-                {entry.imageUrl ? (
-                  <img
-                    src={entry.imageUrl}
-                    alt={entry.subject}
+              <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                  <span
                     style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      display: 'block',
-                    }}
-                  />
-                ) : (
-                  <div
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 28,
-                      fontWeight: 700,
-                      color: '#fff',
                       background: primary,
+                      color: '#fff',
+                      fontSize: 10,
+                      fontWeight: 600,
+                      padding: '3px 8px',
+                      borderRadius: 999,
+                      whiteSpace: 'nowrap',
                     }}
                   >
-                    {initials(entry.subject)}
-                  </div>
-                )}
-                <span
-                  style={{
-                    position: 'absolute',
-                    top: 8,
-                    left: 8,
-                    background: primary,
-                    color: '#fff',
-                    fontSize: 11,
-                    fontWeight: 600,
-                    padding: '3px 8px',
-                    borderRadius: 999,
-                  }}
-                >
-                  {entry.subject}
-                </span>
-              </div>
-              <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <div style={{ fontSize: 15, fontWeight: 700, lineHeight: 1.3 }}>{entry.topic}</div>
-                <div style={{ fontSize: 13, color: muted, lineHeight: 1.45 }}>{entry.note}</div>
+                    {entry.type}
+                  </span>
+                  <span style={{ fontSize: 11, color: muted }}>
+                    {entry.channel}
+                  </span>
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.4 }}>{entry.summary}</div>
                 <div
                   style={{
                     marginTop: 4,
                     fontSize: 12,
                     color: muted,
-                    display: 'flex',
-                    justifyContent: 'space-between',
                   }}
                 >
-                  <span>Logged {formatWhen(entry.loggedAt)}</span>
-                  <span>{entry.reviewCount ?? 0} reviews</span>
+                  {formatWhen(entry.timestamp)}
                 </div>
               </div>
             </div>

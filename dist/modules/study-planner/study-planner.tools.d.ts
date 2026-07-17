@@ -9,6 +9,7 @@ export declare class StudyPlannerTools {
         studentId: string;
         daysThreshold?: number;
     }, ctx: ExecutionContext): Promise<{
+        studentId: string;
         daysThreshold: number;
         count: number;
         results: {
