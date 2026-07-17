@@ -6,9 +6,11 @@
   "description": "Build an MCP server called CampusMind AI — a persistent academic memory system for students. It should remember what a student has studied…",
   "scripts": {
     "dev": "nitrostack-cli dev",
-    "build": "nitrostack-cli build",
-    "start": "npm run build && nitrostack-cli start",
-    "start:prod": "nitrostack-cli start",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "nitrostack-cli build",
+    "build:frontend": "npm --prefix frontend run build",
+    "start": "node dist/index.js",
+    "start:prod": "node dist/index.js",
     "upgrade": "nitrostack-cli upgrade",
     "install:all": "nitrostack-cli install",
     "widget": "npm --prefix src/widgets",
@@ -20,10 +22,12 @@
     "@modelcontextprotocol/ext-apps": ">=0.1.0",
     "@nitrostack/core": "^1.0.13",
     "dotenv": "^16.3.1",
+    "express": "^4.21.2",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@nitrostack/cli": "^1.0.14",
+    "@types/express": "^5.0.0",
     "@types/node": "^22.10.0",
     "typescript": "^5.3.3"
   },

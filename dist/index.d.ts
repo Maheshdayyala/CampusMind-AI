@@ -1,12 +1,13 @@
 /**
- * Calculator MCP Server
+ * CampusMind AI Server
  *
- * Main entry point for the MCP server.
- * Uses the @McpApp decorator pattern for clean, NestJS-style architecture.
+ * Boots both:
+ *   1. The MCP server (tools, resources, prompts)
+ *   2. The built Next.js frontend (static export)
  *
- * Transport Configuration:
- * - Development (NODE_ENV=development): STDIO only
- * - Production (NODE_ENV=production): Dual transport (STDIO + HTTP SSE)
+ * On the same port:
+ *   - GET /, /login, /dashboard, … → frontend pages
+ *   - POST/GET/DELETE /mcp          → MCP protocol
  */
 import 'dotenv/config';
 //# sourceMappingURL=index.d.ts.map
