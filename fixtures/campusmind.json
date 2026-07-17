@@ -1,0 +1,185 @@
+{
+  "students": [
+    {
+      "id": "s1",
+      "name": "Aisha",
+      "program": "BSc Computer Science",
+      "year": 2,
+      "goals": "Master DSA, prepare for internships"
+    },
+    {
+      "id": "s2",
+      "name": "Rohan",
+      "program": "BSc Physics",
+      "year": 1,
+      "goals": "Build strong foundations in mechanics"
+    }
+  ],
+  "courses": [
+    {
+      "id": "c1",
+      "code": "CS201",
+      "title": "Automata Theory",
+      "term": "Fall 2026",
+      "syllabus": "# Automata Theory\n## Topics\n- Finite Automata\n- Regular Expressions\n- Context-Free Grammars\n- Turing Machines\n"
+    },
+    {
+      "id": "c2",
+      "code": "CS101",
+      "title": "Intro to Programming",
+      "term": "Fall 2026",
+      "syllabus": "# Intro to Programming\n## Topics\n- Variables & Types\n- Control Flow\n- Functions\n- Arrays\n"
+    },
+    {
+      "id": "c3",
+      "code": "PHY101",
+      "title": "Classical Mechanics",
+      "term": "Fall 2026",
+      "syllabus": "# Classical Mechanics\n## Topics\n- Newton's Laws\n- Kinematics\n- Energy & Momentum\n"
+    }
+  ],
+  "enrollments": [
+    {
+      "studentId": "s1",
+      "courseId": "c1",
+      "status": "active"
+    },
+    {
+      "studentId": "s1",
+      "courseId": "c2",
+      "status": "active"
+    },
+    {
+      "studentId": "s2",
+      "courseId": "c3",
+      "status": "active"
+    }
+  ],
+  "concepts": [
+    {
+      "id": "k1",
+      "courseId": "c1",
+      "name": "NFA to DFA",
+      "description": "Converting non-deterministic finite automata to deterministic"
+    },
+    {
+      "id": "k2",
+      "courseId": "c1",
+      "name": "Regular Expressions",
+      "description": "Pattern matching using regular expression syntax"
+    },
+    {
+      "id": "k3",
+      "courseId": "c1",
+      "name": "Closure Properties",
+      "description": "Closure of regular languages under union, concatenation, star"
+    },
+    {
+      "id": "k4",
+      "courseId": "c2",
+      "name": "Functions & Scope",
+      "description": "Function definitions, parameters, return values, variable scope"
+    },
+    {
+      "id": "k5",
+      "courseId": "c2",
+      "name": "Arrays & Loops",
+      "description": "Array manipulation and loop constructs"
+    },
+    {
+      "id": "k6",
+      "courseId": "c3",
+      "name": "Newton's Laws",
+      "description": "Three laws of motion and their applications"
+    },
+    {
+      "id": "k7",
+      "courseId": "c3",
+      "name": "Energy Conservation",
+      "description": "Conservation of mechanical energy"
+    }
+  ],
+  "mastery_records": [
+    {
+      "studentId": "s1",
+      "conceptId": "k1",
+      "confidenceScore": 0.42,
+      "lastReviewed": "2026-07-03T11:20:01.594Z",
+      "timesWrong": 3
+    },
+    {
+      "studentId": "s1",
+      "conceptId": "k2",
+      "confidenceScore": 0.75,
+      "lastReviewed": "2026-07-10T11:20:01.594Z",
+      "timesWrong": 1
+    },
+    {
+      "studentId": "s1",
+      "conceptId": "k3",
+      "confidenceScore": 0.3,
+      "lastReviewed": "2026-07-03T11:20:01.594Z",
+      "timesWrong": 4
+    },
+    {
+      "studentId": "s1",
+      "conceptId": "k4",
+      "confidenceScore": 0.85,
+      "lastReviewed": "2026-07-10T11:20:01.594Z",
+      "timesWrong": 0
+    },
+    {
+      "studentId": "s1",
+      "conceptId": "k5",
+      "confidenceScore": 0.9,
+      "lastReviewed": "2026-07-10T11:20:01.594Z",
+      "timesWrong": 0
+    },
+    {
+      "studentId": "s2",
+      "conceptId": "k6",
+      "confidenceScore": 0.6,
+      "lastReviewed": "2026-07-10T11:20:01.594Z",
+      "timesWrong": 1
+    },
+    {
+      "studentId": "s2",
+      "conceptId": "k7",
+      "confidenceScore": 0.35,
+      "lastReviewed": "2026-07-03T11:20:01.594Z",
+      "timesWrong": 2
+    }
+  ],
+  "interactions": [],
+  "assignments": [
+    {
+      "id": 1,
+      "courseId": "c1",
+      "title": "DFA Minimization Problem Set",
+      "dueDate": "2026-07-20",
+      "weight": 0.15
+    },
+    {
+      "id": 2,
+      "courseId": "c1",
+      "title": "Regular Expression Proofs",
+      "dueDate": "2026-07-31",
+      "weight": 0.2
+    },
+    {
+      "id": 3,
+      "courseId": "c2",
+      "title": "Array Manipulation Project",
+      "dueDate": "2026-07-24",
+      "weight": 0.25
+    },
+    {
+      "id": 4,
+      "courseId": "c3",
+      "title": "Inclined Plane Lab Report",
+      "dueDate": "2026-07-24",
+      "weight": 0.15
+    }
+  ],
+  "study_sessions": []
+}

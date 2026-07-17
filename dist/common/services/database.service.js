@@ -8,231 +8,214 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { Injectable } from '@nitrostack/core';
-import Database from 'better-sqlite3';
 import * as path from 'path';
 import * as fs from 'fs';
 const DB_DIR = path.join(process.cwd(), 'fixtures');
-const DB_PATH = path.join(DB_DIR, 'campusmind.db');
+const DB_PATH = path.join(DB_DIR, 'campusmind.json');
 let DatabaseService = class DatabaseService {
-    db;
+    state;
     constructor() {
         if (!fs.existsSync(DB_DIR)) {
             fs.mkdirSync(DB_DIR, { recursive: true });
         }
-        this.db = new Database(DB_PATH);
-        this.db.pragma('journal_mode = WAL');
-        this.migrate();
+        this.state = this.loadState();
         this.seed();
     }
-    migrate() {
-        this.db.exec(`
-      CREATE TABLE IF NOT EXISTS students (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        program TEXT NOT NULL,
-        year INTEGER NOT NULL,
-        goals TEXT NOT NULL DEFAULT ''
-      );
-
-      CREATE TABLE IF NOT EXISTS courses (
-        id TEXT PRIMARY KEY,
-        code TEXT NOT NULL,
-        title TEXT NOT NULL,
-        term TEXT NOT NULL,
-        syllabus TEXT NOT NULL DEFAULT ''
-      );
-
-      CREATE TABLE IF NOT EXISTS enrollments (
-        studentId TEXT NOT NULL REFERENCES students(id),
-        courseId TEXT NOT NULL REFERENCES courses(id),
-        status TEXT NOT NULL DEFAULT 'active',
-        PRIMARY KEY (studentId, courseId)
-      );
-
-      CREATE TABLE IF NOT EXISTS concepts (
-        id TEXT PRIMARY KEY,
-        courseId TEXT NOT NULL REFERENCES courses(id),
-        name TEXT NOT NULL,
-        description TEXT NOT NULL DEFAULT ''
-      );
-
-      CREATE TABLE IF NOT EXISTS mastery_records (
-        studentId TEXT NOT NULL REFERENCES students(id),
-        conceptId TEXT NOT NULL REFERENCES concepts(id),
-        confidenceScore REAL NOT NULL DEFAULT 0.5,
-        lastReviewed TEXT NOT NULL,
-        timesWrong INTEGER NOT NULL DEFAULT 0,
-        PRIMARY KEY (studentId, conceptId)
-      );
-
-      CREATE TABLE IF NOT EXISTS interactions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        studentId TEXT NOT NULL REFERENCES students(id),
-        timestamp TEXT NOT NULL,
-        type TEXT NOT NULL,
-        summary TEXT NOT NULL DEFAULT '',
-        channel TEXT NOT NULL DEFAULT 'text',
-        transcript TEXT NOT NULL DEFAULT '',
-        audioDurationSeconds REAL NOT NULL DEFAULT 0,
-        intent TEXT NOT NULL DEFAULT '',
-        responseMode TEXT NOT NULL DEFAULT 'text'
-      );
-
-      CREATE TABLE IF NOT EXISTS assignments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        courseId TEXT NOT NULL REFERENCES courses(id),
-        title TEXT NOT NULL,
-        dueDate TEXT NOT NULL,
-        weight REAL NOT NULL DEFAULT 1.0
-      );
-
-      CREATE TABLE IF NOT EXISTS study_sessions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        studentId TEXT NOT NULL REFERENCES students(id),
-        plannedAt TEXT NOT NULL,
-        topics TEXT NOT NULL DEFAULT '[]',
-        completed INTEGER NOT NULL DEFAULT 0
-      );
-    `);
+    loadState() {
+        if (!fs.existsSync(DB_PATH)) {
+            return this.createEmptyState();
+        }
+        try {
+            const parsed = JSON.parse(fs.readFileSync(DB_PATH, 'utf-8'));
+            return {
+                students: Array.isArray(parsed.students) ? parsed.students : [],
+                courses: Array.isArray(parsed.courses) ? parsed.courses : [],
+                enrollments: Array.isArray(parsed.enrollments) ? parsed.enrollments : [],
+                concepts: Array.isArray(parsed.concepts) ? parsed.concepts : [],
+                mastery_records: Array.isArray(parsed.mastery_records) ? parsed.mastery_records : [],
+                interactions: Array.isArray(parsed.interactions) ? parsed.interactions : [],
+                assignments: Array.isArray(parsed.assignments) ? parsed.assignments : [],
+                study_sessions: Array.isArray(parsed.study_sessions) ? parsed.study_sessions : [],
+            };
+        }
+        catch {
+            return this.createEmptyState();
+        }
+    }
+    createEmptyState() {
+        return {
+            students: [],
+            courses: [],
+            enrollments: [],
+            concepts: [],
+            mastery_records: [],
+            interactions: [],
+            assignments: [],
+            study_sessions: [],
+        };
+    }
+    persist() {
+        fs.writeFileSync(DB_PATH, JSON.stringify(this.state, null, 2), 'utf-8');
     }
     seed() {
-        const studentCount = this.db.prepare('SELECT COUNT(*) as count FROM students').get();
-        if (studentCount.count > 0)
+        if (this.state.students.length > 0)
             return;
-        const insertStudent = this.db.prepare('INSERT INTO students (id, name, program, year, goals) VALUES (?, ?, ?, ?, ?)');
-        const insertCourse = this.db.prepare('INSERT INTO courses (id, code, title, term, syllabus) VALUES (?, ?, ?, ?, ?)');
-        const insertEnrollment = this.db.prepare('INSERT INTO enrollments (studentId, courseId, status) VALUES (?, ?, ?)');
-        const insertConcept = this.db.prepare('INSERT INTO concepts (id, courseId, name, description) VALUES (?, ?, ?, ?)');
-        const insertMastery = this.db.prepare('INSERT INTO mastery_records (studentId, conceptId, confidenceScore, lastReviewed, timesWrong) VALUES (?, ?, ?, ?, ?)');
-        const insertAssignment = this.db.prepare('INSERT INTO assignments (courseId, title, dueDate, weight) VALUES (?, ?, ?, ?)');
-        const tx = this.db.transaction(() => {
-            insertStudent.run('s1', 'Aisha', 'BSc Computer Science', 2, 'Master DSA, prepare for internships');
-            insertStudent.run('s2', 'Rohan', 'BSc Physics', 1, 'Build strong foundations in mechanics');
-            insertCourse.run('c1', 'CS201', 'Automata Theory', 'Fall 2026', '# Automata Theory\n## Topics\n- Finite Automata\n- Regular Expressions\n- Context-Free Grammars\n- Turing Machines\n');
-            insertCourse.run('c2', 'CS101', 'Intro to Programming', 'Fall 2026', '# Intro to Programming\n## Topics\n- Variables & Types\n- Control Flow\n- Functions\n- Arrays\n');
-            insertCourse.run('c3', 'PHY101', 'Classical Mechanics', 'Fall 2026', '# Classical Mechanics\n## Topics\n- Newton\'s Laws\n- Kinematics\n- Energy & Momentum\n');
-            insertEnrollment.run('s1', 'c1', 'active');
-            insertEnrollment.run('s1', 'c2', 'active');
-            insertEnrollment.run('s2', 'c3', 'active');
-            insertConcept.run('k1', 'c1', 'NFA to DFA', 'Converting non-deterministic finite automata to deterministic');
-            insertConcept.run('k2', 'c1', 'Regular Expressions', 'Pattern matching using regular expression syntax');
-            insertConcept.run('k3', 'c1', 'Closure Properties', 'Closure of regular languages under union, concatenation, star');
-            insertConcept.run('k4', 'c2', 'Functions & Scope', 'Function definitions, parameters, return values, variable scope');
-            insertConcept.run('k5', 'c2', 'Arrays & Loops', 'Array manipulation and loop constructs');
-            insertConcept.run('k6', 'c3', 'Newton\'s Laws', 'Three laws of motion and their applications');
-            insertConcept.run('k7', 'c3', 'Energy Conservation', 'Conservation of mechanical energy');
-            const now = new Date().toISOString();
-            const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
-            const twoWeeksAgo = new Date(Date.now() - 14 * 86400000).toISOString();
-            insertMastery.run('s1', 'k1', 0.42, twoWeeksAgo, 3);
-            insertMastery.run('s1', 'k2', 0.75, weekAgo, 1);
-            insertMastery.run('s1', 'k3', 0.30, twoWeeksAgo, 4);
-            insertMastery.run('s1', 'k4', 0.85, weekAgo, 0);
-            insertMastery.run('s1', 'k5', 0.90, weekAgo, 0);
-            insertMastery.run('s2', 'k6', 0.60, weekAgo, 1);
-            insertMastery.run('s2', 'k7', 0.35, twoWeeksAgo, 2);
-            const in3Days = new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0];
-            const in7Days = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
-            const in14Days = new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0];
-            insertAssignment.run('c1', 'DFA Minimization Problem Set', in3Days, 0.15);
-            insertAssignment.run('c1', 'Regular Expression Proofs', in14Days, 0.20);
-            insertAssignment.run('c2', 'Array Manipulation Project', in7Days, 0.25);
-            insertAssignment.run('c3', 'Inclined Plane Lab Report', in7Days, 0.15);
-        });
-        tx();
+        const students = [
+            { id: 's1', name: 'Aisha', program: 'BSc Computer Science', year: 2, goals: 'Master DSA, prepare for internships' },
+            { id: 's2', name: 'Rohan', program: 'BSc Physics', year: 1, goals: 'Build strong foundations in mechanics' },
+        ];
+        const courses = [
+            { id: 'c1', code: 'CS201', title: 'Automata Theory', term: 'Fall 2026', syllabus: '# Automata Theory\n## Topics\n- Finite Automata\n- Regular Expressions\n- Context-Free Grammars\n- Turing Machines\n' },
+            { id: 'c2', code: 'CS101', title: 'Intro to Programming', term: 'Fall 2026', syllabus: '# Intro to Programming\n## Topics\n- Variables & Types\n- Control Flow\n- Functions\n- Arrays\n' },
+            { id: 'c3', code: 'PHY101', title: 'Classical Mechanics', term: 'Fall 2026', syllabus: '# Classical Mechanics\n## Topics\n- Newton\'s Laws\n- Kinematics\n- Energy & Momentum\n' },
+        ];
+        const enrollments = [
+            { studentId: 's1', courseId: 'c1', status: 'active' },
+            { studentId: 's1', courseId: 'c2', status: 'active' },
+            { studentId: 's2', courseId: 'c3', status: 'active' },
+        ];
+        const concepts = [
+            { id: 'k1', courseId: 'c1', name: 'NFA to DFA', description: 'Converting non-deterministic finite automata to deterministic' },
+            { id: 'k2', courseId: 'c1', name: 'Regular Expressions', description: 'Pattern matching using regular expression syntax' },
+            { id: 'k3', courseId: 'c1', name: 'Closure Properties', description: 'Closure of regular languages under union, concatenation, star' },
+            { id: 'k4', courseId: 'c2', name: 'Functions & Scope', description: 'Function definitions, parameters, return values, variable scope' },
+            { id: 'k5', courseId: 'c2', name: 'Arrays & Loops', description: 'Array manipulation and loop constructs' },
+            { id: 'k6', courseId: 'c3', name: 'Newton\'s Laws', description: 'Three laws of motion and their applications' },
+            { id: 'k7', courseId: 'c3', name: 'Energy Conservation', description: 'Conservation of mechanical energy' },
+        ];
+        const now = new Date().toISOString();
+        const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+        const twoWeeksAgo = new Date(Date.now() - 14 * 86400000).toISOString();
+        const masteryRecords = [
+            { studentId: 's1', conceptId: 'k1', confidenceScore: 0.42, lastReviewed: twoWeeksAgo, timesWrong: 3 },
+            { studentId: 's1', conceptId: 'k2', confidenceScore: 0.75, lastReviewed: weekAgo, timesWrong: 1 },
+            { studentId: 's1', conceptId: 'k3', confidenceScore: 0.30, lastReviewed: twoWeeksAgo, timesWrong: 4 },
+            { studentId: 's1', conceptId: 'k4', confidenceScore: 0.85, lastReviewed: weekAgo, timesWrong: 0 },
+            { studentId: 's1', conceptId: 'k5', confidenceScore: 0.90, lastReviewed: weekAgo, timesWrong: 0 },
+            { studentId: 's2', conceptId: 'k6', confidenceScore: 0.60, lastReviewed: weekAgo, timesWrong: 1 },
+            { studentId: 's2', conceptId: 'k7', confidenceScore: 0.35, lastReviewed: twoWeeksAgo, timesWrong: 2 },
+        ];
+        const in3Days = new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0];
+        const in7Days = new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0];
+        const in14Days = new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0];
+        const assignments = [
+            { id: 1, courseId: 'c1', title: 'DFA Minimization Problem Set', dueDate: in3Days, weight: 0.15 },
+            { id: 2, courseId: 'c1', title: 'Regular Expression Proofs', dueDate: in14Days, weight: 0.20 },
+            { id: 3, courseId: 'c2', title: 'Array Manipulation Project', dueDate: in7Days, weight: 0.25 },
+            { id: 4, courseId: 'c3', title: 'Inclined Plane Lab Report', dueDate: in7Days, weight: 0.15 },
+        ];
+        this.state = { students, courses, enrollments, concepts, mastery_records: masteryRecords, interactions: [], assignments, study_sessions: [] };
+        this.persist();
     }
     getDb() {
-        return this.db;
+        return this.state;
     }
     // --- Students ---
     getStudent(id) {
-        return this.db.prepare('SELECT * FROM students WHERE id = ?').get(id);
+        return this.state.students.find((student) => student.id === id);
     }
     // --- Courses ---
     getCourse(id) {
-        return this.db.prepare('SELECT * FROM courses WHERE id = ?').get(id);
+        return this.state.courses.find((course) => course.id === id);
     }
     getStudentCourses(studentId) {
-        return this.db.prepare(`
-      SELECT c.* FROM courses c
-      JOIN enrollments e ON e.courseId = c.id
-      WHERE e.studentId = ?
-    `).all(studentId);
+        const courseIds = this.state.enrollments
+            .filter((enrollment) => enrollment.studentId === studentId)
+            .map((enrollment) => enrollment.courseId);
+        return this.state.courses.filter((course) => courseIds.includes(course.id));
     }
     // --- Concepts ---
     getCourseConcepts(courseId) {
-        return this.db.prepare('SELECT * FROM concepts WHERE courseId = ?').all(courseId);
+        return this.state.concepts.filter((concept) => concept.courseId === courseId);
     }
     getConcept(id) {
-        return this.db.prepare('SELECT * FROM concepts WHERE id = ?').get(id);
+        return this.state.concepts.find((concept) => concept.id === id);
     }
     // --- Mastery ---
     getStudentMastery(studentId) {
-        return this.db.prepare(`
-      SELECT m.* FROM mastery_records m
-      JOIN concepts c ON c.id = m.conceptId
-      JOIN enrollments e ON e.courseId = c.courseId AND e.studentId = m.studentId
-      WHERE m.studentId = ?
-    `).all(studentId);
+        return this.state.mastery_records.filter((record) => {
+            if (record.studentId !== studentId)
+                return false;
+            const concept = this.state.concepts.find((entry) => entry.id === record.conceptId);
+            return Boolean(concept && this.state.enrollments.some((enrollment) => enrollment.studentId === studentId && enrollment.courseId === concept.courseId));
+        });
     }
     upsertMastery(studentId, conceptId, confidenceScore, timesWrong) {
         const now = new Date().toISOString();
-        this.db.prepare(`
-      INSERT INTO mastery_records (studentId, conceptId, confidenceScore, lastReviewed, timesWrong)
-      VALUES (?, ?, ?, ?, ?)
-      ON CONFLICT(studentId, conceptId) DO UPDATE SET
-        confidenceScore = excluded.confidenceScore,
-        lastReviewed = excluded.lastReviewed,
-        timesWrong = excluded.timesWrong
-    `).run(studentId, conceptId, confidenceScore, now, timesWrong);
+        const existing = this.state.mastery_records.find((record) => record.studentId === studentId && record.conceptId === conceptId);
+        if (existing) {
+            existing.confidenceScore = confidenceScore;
+            existing.lastReviewed = now;
+            existing.timesWrong = timesWrong;
+        }
+        else {
+            this.state.mastery_records.push({ studentId, conceptId, confidenceScore, lastReviewed: now, timesWrong });
+        }
+        this.persist();
     }
     // --- Interactions ---
     logInteraction(studentId, type, summary, channel = 'text', transcript = '', audioDurationSeconds = 0, intent = '', responseMode = 'text') {
         const now = new Date().toISOString();
-        const result = this.db.prepare(`
-      INSERT INTO interactions (studentId, timestamp, type, summary, channel, transcript, audioDurationSeconds, intent, responseMode)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(studentId, now, type, summary, channel, transcript, audioDurationSeconds, intent, responseMode);
-        return result.lastInsertRowid;
+        const id = this.state.interactions.reduce((maxId, interaction) => Math.max(maxId, interaction.id), 0) + 1;
+        const interaction = {
+            id,
+            studentId,
+            timestamp: now,
+            type,
+            summary,
+            channel,
+            transcript,
+            audioDurationSeconds,
+            intent,
+            responseMode,
+        };
+        this.state.interactions.push(interaction);
+        this.persist();
+        return id;
     }
     getRecentInteractions(studentId, limit = 20) {
-        return this.db.prepare('SELECT * FROM interactions WHERE studentId = ? ORDER BY timestamp DESC LIMIT ?').all(studentId, limit);
+        return this.state.interactions
+            .filter((interaction) => interaction.studentId === studentId)
+            .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
+            .slice(0, limit);
     }
     // --- Assignments ---
     getUpcomingAssignments(studentId) {
         const now = new Date().toISOString().split('T')[0];
-        return this.db.prepare(`
-      SELECT a.* FROM assignments a
-      JOIN enrollments e ON e.courseId = a.courseId
-      WHERE e.studentId = ? AND a.dueDate >= ?
-      ORDER BY a.dueDate ASC
-    `).all(studentId, now);
+        const courseIds = this.state.enrollments
+            .filter((enrollment) => enrollment.studentId === studentId)
+            .map((enrollment) => enrollment.courseId);
+        return this.state.assignments
+            .filter((assignment) => courseIds.includes(assignment.courseId) && assignment.dueDate >= now)
+            .sort((a, b) => a.dueDate.localeCompare(b.dueDate));
     }
     getAssignmentsDueSoon(studentId, daysAhead = 7) {
         const now = new Date().toISOString().split('T')[0];
         const cutoff = new Date(Date.now() + daysAhead * 86400000).toISOString().split('T')[0];
-        return this.db.prepare(`
-      SELECT a.* FROM assignments a
-      JOIN enrollments e ON e.courseId = a.courseId
-      WHERE e.studentId = ? AND a.dueDate >= ? AND a.dueDate <= ?
-      ORDER BY a.dueDate ASC
-    `).all(studentId, now, cutoff);
+        const courseIds = this.state.enrollments
+            .filter((enrollment) => enrollment.studentId === studentId)
+            .map((enrollment) => enrollment.courseId);
+        return this.state.assignments
+            .filter((assignment) => courseIds.includes(assignment.courseId) && assignment.dueDate >= now && assignment.dueDate <= cutoff)
+            .sort((a, b) => a.dueDate.localeCompare(b.dueDate));
     }
     // --- Study Sessions ---
     logStudySession(studentId, topics, completed) {
         const now = new Date().toISOString();
-        const result = this.db.prepare(`
-      INSERT INTO study_sessions (studentId, plannedAt, topics, completed)
-      VALUES (?, ?, ?, ?)
-    `).run(studentId, now, topics, completed ? 1 : 0);
-        return result.lastInsertRowid;
+        const id = this.state.study_sessions.reduce((maxId, session) => Math.max(maxId, session.id), 0) + 1;
+        const session = { id, studentId, plannedAt: now, topics, completed: completed ? 1 : 0 };
+        this.state.study_sessions.push(session);
+        this.persist();
+        return id;
     }
     getRecentStudySessions(studentId, days = 7) {
         const cutoff = new Date(Date.now() - days * 86400000).toISOString();
-        return this.db.prepare('SELECT * FROM study_sessions WHERE studentId = ? AND plannedAt >= ? ORDER BY plannedAt DESC').all(studentId, cutoff);
+        return this.state.study_sessions
+            .filter((session) => session.studentId === studentId && session.plannedAt >= cutoff)
+            .sort((a, b) => b.plannedAt.localeCompare(a.plannedAt));
     }
     close() {
-        this.db.close();
+        this.persist();
     }
 };
 DatabaseService = __decorate([

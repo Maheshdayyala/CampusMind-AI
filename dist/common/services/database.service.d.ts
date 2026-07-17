@@ -1,4 +1,3 @@
-import Database from 'better-sqlite3';
 export interface StudentRow {
     id: string;
     name: string;
@@ -57,12 +56,24 @@ export interface StudySessionRow {
     topics: string;
     completed: number;
 }
+interface PersistenceState {
+    students: StudentRow[];
+    courses: CourseRow[];
+    enrollments: EnrollmentRow[];
+    concepts: ConceptRow[];
+    mastery_records: MasteryRecordRow[];
+    interactions: InteractionRow[];
+    assignments: AssignmentRow[];
+    study_sessions: StudySessionRow[];
+}
 export declare class DatabaseService {
-    private db;
+    private state;
     constructor();
-    private migrate;
+    private loadState;
+    private createEmptyState;
+    private persist;
     private seed;
-    getDb(): Database.Database;
+    getDb(): PersistenceState;
     getStudent(id: string): StudentRow | undefined;
     getCourse(id: string): CourseRow | undefined;
     getStudentCourses(studentId: string): CourseRow[];
@@ -78,4 +89,5 @@ export declare class DatabaseService {
     getRecentStudySessions(studentId: string, days?: number): StudySessionRow[];
     close(): void;
 }
+export {};
 //# sourceMappingURL=database.service.d.ts.map
