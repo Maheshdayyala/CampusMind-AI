@@ -1,0 +1,1 @@
+{"version":3,"file":"frontend-routes.service.d.ts","sourceRoot":"","sources":["../src/frontend-routes.service.ts"],"names":[],"mappings":"AAGA,OAAO,EAEL,gBAAgB,EAChB,KAAK,sBAAsB,EAC5B,MAAM,kBAAkB,CAAC;AAE1B,qBACa,qBAAsB,YAAW,sBAAsB;IAGtD,OAAO,CAAC,QAAQ,CAAC,MAAM;IAFnC,OAAO,CAAC,QAAQ,CAAC,WAAW,CAAkD;gBAEjD,MAAM,EAAE,gBAAgB;IAErD,sBAAsB,IAAI,IAAI;IAyB9B,OAAO,CAAC,eAAe;CAgBxB"}

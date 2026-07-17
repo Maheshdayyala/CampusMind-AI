@@ -1,13 +1,8 @@
 /**
  * CampusMind AI Server
  *
- * Boots both:
- *   1. The MCP server (tools, resources, prompts)
- *   2. The built Next.js frontend (static export)
- *
- * On the same port:
- *   - GET /, /login, /dashboard, … → frontend pages
- *   - POST/GET/DELETE /mcp          → MCP protocol
+ * Boots the NitroStack MCP server. Frontend HTTP routes are registered through
+ * FrontendRoutesService using NitroStack's public HTTP transport API.
  */
 import 'dotenv/config';
 //# sourceMappingURL=index.d.ts.map

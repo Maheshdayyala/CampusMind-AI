@@ -9,6 +9,7 @@ import { InsightsModule } from './modules/insights/insights.module.js';
 import { DatabaseService } from './common/services/database.service.js';
 import { JwtGuard } from './common/guards/jwt.guard.js';
 import { SystemHealthCheck } from './health/system.health.js';
+import { FrontendRoutesService } from './frontend-routes.service.js';
 
 @McpApp({
   module: AppModule,
@@ -37,6 +38,7 @@ import { SystemHealthCheck } from './health/system.health.js';
     DatabaseService,
     JwtGuard,
     SystemHealthCheck,
+    FrontendRoutesService,
   ]
 })
 export class AppModule {}
