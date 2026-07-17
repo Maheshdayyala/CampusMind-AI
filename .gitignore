@@ -5,3 +5,6 @@ src/widgets/node_modules/
 fixtures/*.db
 fixtures/*.db-shm
 fixtures/*.db-wal
+frontend/node_modules/
+frontend/.next/
+frontend/out/
