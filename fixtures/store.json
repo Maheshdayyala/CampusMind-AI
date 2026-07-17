@@ -1,0 +1,62 @@
+[
+  {
+    "id": "topic_seed_chem_eq",
+    "subject": "Chemistry",
+    "topic": "Chemical equilibrium basics",
+    "note": "Went over the equilibrium constant Kc and reaction quotient Q. Still fuzzy on why equilibrium shifts respond to concentration changes.",
+    "imageUrl": "https://picsum.photos/seed/campusmind-chemistry/600/400",
+    "loggedAt": "2026-07-05T09:30:00.000Z",
+    "lastReviewedAt": "2026-07-05T09:30:00.000Z",
+    "reviewCount": 0
+  },
+  {
+    "id": "topic_seed_phys_newton",
+    "subject": "Physics",
+    "topic": "Newton's laws of motion",
+    "note": "Reviewed free-body diagrams and the second law. Need practice on friction problems on inclined planes.",
+    "imageUrl": "https://picsum.photos/seed/campusmind-physics/600/400",
+    "loggedAt": "2026-07-08T14:10:00.000Z",
+    "lastReviewedAt": "2026-07-08T14:10:00.000Z",
+    "reviewCount": 1
+  },
+  {
+    "id": "topic_seed_math_integ",
+    "subject": "Mathematics",
+    "topic": "Integration by parts",
+    "note": "Practiced the LIATE rule. Still unclear when to apply it twice for cyclic integrals.",
+    "imageUrl": "https://picsum.photos/seed/campusmind-mathematics/600/400",
+    "loggedAt": "2026-07-10T18:45:00.000Z",
+    "lastReviewedAt": "2026-07-10T18:45:00.000Z",
+    "reviewCount": 0
+  },
+  {
+    "id": "topic_seed_bio_cell",
+    "subject": "Biology",
+    "topic": "Cell respiration and ATP",
+    "note": "Covered glycolysis and the Krebs cycle. Confused about the net ATP yield in anaerobic conditions.",
+    "imageUrl": "https://picsum.photos/seed/campusmind-biology/600/400",
+    "loggedAt": "2026-07-11T11:20:00.000Z",
+    "lastReviewedAt": "2026-07-11T11:20:00.000Z",
+    "reviewCount": 2
+  },
+  {
+    "id": "topic_seed_cs_recursion",
+    "subject": "Computer Science",
+    "topic": "Recursion and stack frames",
+    "note": "Traced recursive factorial and fibonacci. Want to understand tail-call optimization better.",
+    "imageUrl": "https://picsum.photos/seed/campusmind-computer%20science/600/400",
+    "loggedAt": "2026-07-12T16:05:00.000Z",
+    "lastReviewedAt": "2026-07-12T16:05:00.000Z",
+    "reviewCount": 0
+  },
+  {
+    "id": "topic_seed_hist_revolution",
+    "subject": "History",
+    "topic": "Causes of the French Revolution",
+    "note": "Summarized economic and social causes. Still need to connect the Enlightenment ideas to political change.",
+    "imageUrl": "https://picsum.photos/seed/campusmind-history/600/400",
+    "loggedAt": "2026-07-13T10:00:00.000Z",
+    "lastReviewedAt": "2026-07-13T10:00:00.000Z",
+    "reviewCount": 1
+  }
+]

@@ -1,0 +1,11 @@
+Build an MCP server called CampusMind AI — a persistent academic memory system for students. It should remember what a student has studied over time and proactively resurface things, not just answer one-off questions.
+Include these tools:
+
+log_topic — logs a topic/doubt a student studied or asked about. Inputs: subject (string), topic (string), note (string, what was covered or still unclear). Stores it with a timestamp and returns an id.
+recall_topic — searches previously logged topics by a keyword or vague query (fuzzy match against subject/topic/note). Input: query (string). Returns matching entries sorted newest first, including subject, topic, note, and when it was logged.
+get_review_due — proactively finds topics that haven't been reviewed in at least N days (spaced-repetition style). Input: daysThreshold (number, default 3). Returns the overdue topics with how many days since last review.
+mark_reviewed — marks a topic (by id) as reviewed right now, resetting its review clock and incrementing a review count.
+demo_backdate_topic (demo/testing only) — artificially ages a logged topic's timestamps by N days so get_review_due can be tested without waiting real time. Inputs: id (string), daysAgo (number, default 5).
+
+Use a simple JSON-file-backed store (not just in-memory) so data survives server restarts. Each stored entry needs: id, subject, topic, note, loggedAt, lastReviewedAt, reviewCount.
+The point of the app: student logs a doubt today, and later — even with a vague follow-up like "that thing I asked about last week" — the agent recalls it, and separately proactively flags things due for review without being asked.
