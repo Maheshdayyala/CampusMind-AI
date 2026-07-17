@@ -1,0 +1,1 @@
+{"version":3,"file":"study-planner.resources.d.ts","sourceRoot":"","sources":["../../../src/modules/study-planner/study-planner.resources.ts"],"names":[],"mappings":"AAAA,OAAO,EAAiC,gBAAgB,EAAc,MAAM,kBAAkB,CAAC;AAC/F,OAAO,EAAE,eAAe,EAAE,MAAM,2CAA2C,CAAC;AAE5E,qBACa,qBAAqB;IACpB,OAAO,CAAC,EAAE;gBAAF,EAAE,EAAE,eAAe;IAQjC,iBAAiB,CAAC,GAAG,EAAE,MAAM,EAAE,OAAO,EAAE,gBAAgB;;;;CA4B/D"}

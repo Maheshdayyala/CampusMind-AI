@@ -1,19 +1,19 @@
 import { McpApp, Module, ConfigModule } from '@nitrostack/core';
-import { MemoryModule } from './modules/memory/memory.module.js';
-import { ReviewModule } from './modules/review/review.module.js';
+import { AuthModule } from './modules/auth/auth.module.js';
+import { StudentsModule } from './modules/students/students.module.js';
+import { CoursesModule } from './modules/courses/courses.module.js';
+import { AcademicMemoryModule } from './modules/academic-memory/academic-memory.module.js';
+import { StudyPlannerModule } from './modules/study-planner/study-planner.module.js';
+import { InsightsModule } from './modules/insights/insights.module.js';
+import { DatabaseService } from './common/services/database.service.js';
+import { JwtGuard } from './common/guards/jwt.guard.js';
 import { SystemHealthCheck } from './health/system.health.js';
 
-/**
- * Root Application Module
- *
- * CampusMind AI — a persistent academic memory system for students.
- * Registers the memory and review feature modules plus health checks.
- */
 @McpApp({
   module: AppModule,
   server: {
     name: 'campusmind-ai',
-    version: '1.0.0'
+    version: '2.0.0'
   },
   logging: {
     level: 'info'
@@ -21,14 +21,19 @@ import { SystemHealthCheck } from './health/system.health.js';
 })
 @Module({
   name: 'app',
-  description: 'Root application module',
+  description: 'CampusMind AI — persistent academic memory system for students',
   imports: [
     ConfigModule.forRoot(),
-    MemoryModule,
-    ReviewModule
+    AuthModule,
+    StudentsModule,
+    CoursesModule,
+    AcademicMemoryModule,
+    StudyPlannerModule,
+    InsightsModule,
   ],
   providers: [
-    // Health Checks
+    DatabaseService,
+    JwtGuard,
     SystemHealthCheck,
   ]
 })

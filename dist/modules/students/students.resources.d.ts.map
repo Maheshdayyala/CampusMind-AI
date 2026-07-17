@@ -1,0 +1,1 @@
+{"version":3,"file":"students.resources.d.ts","sourceRoot":"","sources":["../../../src/modules/students/students.resources.ts"],"names":[],"mappings":"AAAA,OAAO,EAAiC,gBAAgB,EAAc,MAAM,kBAAkB,CAAC;AAC/F,OAAO,EAAE,eAAe,EAAE,MAAM,2CAA2C,CAAC;AAE5E,qBACa,iBAAiB;IAChB,OAAO,CAAC,EAAE;gBAAF,EAAE,EAAE,eAAe;IAQjC,cAAc,CAAC,GAAG,EAAE,MAAM,EAAE,OAAO,EAAE,gBAAgB;;;;CAmB5D"}
