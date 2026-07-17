@@ -119,5 +119,29 @@ export declare class AcademicMemoryTools {
             channel: string;
         }[];
     }>;
+    getMasteryHeatmap(input: {
+        studentId: string;
+    }, ctx: ExecutionContext): Promise<{
+        ok: boolean;
+        message: string;
+        studentId?: undefined;
+        courses?: undefined;
+    } | {
+        studentId: string;
+        courses: {
+            code: string;
+            title: string;
+            concepts: {
+                conceptId: string;
+                concept: string;
+                courseCode: string;
+                confidenceScore: number;
+                daysSinceReview: number;
+                timesWrong: number;
+            }[];
+        }[];
+        ok?: undefined;
+        message?: undefined;
+    }>;
 }
 //# sourceMappingURL=academic-memory.tools.d.ts.map

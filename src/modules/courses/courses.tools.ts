@@ -1,5 +1,6 @@
-import { ToolDecorator as Tool, z, ExecutionContext, Injectable } from '@nitrostack/core';
+import { ToolDecorator as Tool, UseGuards as UseGuards, z, ExecutionContext, Injectable } from '@nitrostack/core';
 import { DatabaseService } from '../../common/services/database.service.js';
+import { JwtGuard } from '../../common/guards/jwt.guard.js';
 
 @Injectable({ deps: [DatabaseService] })
 export class CoursesTools {
@@ -12,6 +13,7 @@ export class CoursesTools {
       studentId: z.string().describe('The student ID'),
     }),
   })
+  @UseGuards(JwtGuard)
   async listCourses(input: { studentId: string }, ctx: ExecutionContext) {
     const courses = this.db.getStudentCourses(input.studentId);
     return {
@@ -33,6 +35,7 @@ export class CoursesTools {
       conceptId: z.string().describe('The concept ID (e.g. k1, k2, k3...)'),
     }),
   })
+  @UseGuards(JwtGuard)
   async getConcept(input: { studentId: string; conceptId: string }, ctx: ExecutionContext) {
     const concept = this.db.getConcept(input.conceptId);
     if (!concept) {

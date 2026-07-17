@@ -1,6 +1,7 @@
-import { ToolDecorator as Tool, z, ExecutionContext, Injectable } from '@nitrostack/core';
+import { ToolDecorator as Tool, Widget, UseGuards as UseGuards, z, ExecutionContext, Injectable } from '@nitrostack/core';
 import { DatabaseService } from '../../common/services/database.service.js';
 import { MasteryService } from '../../common/mastery/mastery.service.js';
+import { JwtGuard } from '../../common/guards/jwt.guard.js';
 
 @Injectable({ deps: [DatabaseService, MasteryService] })
 export class InsightsTools {
@@ -17,6 +18,8 @@ export class InsightsTools {
       days: z.number().default(14).describe('Number of days to look back (default 14)'),
     }),
   })
+  @UseGuards(JwtGuard)
+  @Widget('progress-dashboard')
   async getProgressSummary(input: { studentId: string; days?: number }, ctx: ExecutionContext) {
     const { studentId, days = 14 } = input;
     const student = this.db.getStudent(studentId);

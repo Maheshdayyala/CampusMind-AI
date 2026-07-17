@@ -7,8 +7,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { ToolDecorator as Tool, z, Injectable } from '@nitrostack/core';
+import { ToolDecorator as Tool, UseGuards as UseGuards, z, Injectable } from '@nitrostack/core';
 import { DatabaseService } from '../../common/services/database.service.js';
+import { JwtGuard } from '../../common/guards/jwt.guard.js';
 let CoursesTools = class CoursesTools {
     db;
     constructor(db) {
@@ -58,6 +59,7 @@ __decorate([
             studentId: z.string().describe('The student ID'),
         }),
     }),
+    UseGuards(JwtGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
@@ -71,6 +73,7 @@ __decorate([
             conceptId: z.string().describe('The concept ID (e.g. k1, k2, k3...)'),
         }),
     }),
+    UseGuards(JwtGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)

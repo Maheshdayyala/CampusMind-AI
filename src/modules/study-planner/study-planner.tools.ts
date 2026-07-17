@@ -1,6 +1,7 @@
-import { ToolDecorator as Tool, Widget, z, ExecutionContext, Injectable } from '@nitrostack/core';
+import { ToolDecorator as Tool, Widget, UseGuards as UseGuards, z, ExecutionContext, Injectable } from '@nitrostack/core';
 import { DatabaseService } from '../../common/services/database.service.js';
 import { MasteryService } from '../../common/mastery/mastery.service.js';
+import { JwtGuard } from '../../common/guards/jwt.guard.js';
 
 @Injectable({ deps: [DatabaseService, MasteryService] })
 export class StudyPlannerTools {
@@ -18,6 +19,7 @@ export class StudyPlannerTools {
     }),
   })
   @Widget('review-due')
+  @UseGuards(JwtGuard)
   async getReviewDue(input: { studentId: string; daysThreshold?: number }, ctx: ExecutionContext) {
     const threshold = input.daysThreshold ?? 3;
     const mastery = this.db.getStudentMastery(input.studentId);
@@ -58,6 +60,7 @@ export class StudyPlannerTools {
       conceptId: z.string().describe('The concept ID to mark as reviewed'),
     }),
   })
+  @UseGuards(JwtGuard)
   async markReviewed(input: { studentId: string; conceptId: string }, ctx: ExecutionContext) {
     const { studentId, conceptId } = input;
     const concept = this.db.getConcept(conceptId);
@@ -92,6 +95,7 @@ export class StudyPlannerTools {
       daysAgo: z.number().default(5).describe('How many days to age the last-reviewed timestamp (default 5)'),
     }),
   })
+  @UseGuards(JwtGuard)
   async demoBackdateTopic(input: { studentId: string; conceptId: string; daysAgo?: number }, ctx: ExecutionContext) {
     const daysAgo = input.daysAgo ?? 5;
     const concept = this.db.getConcept(input.conceptId);
@@ -127,6 +131,7 @@ export class StudyPlannerTools {
       deadline: z.string().describe('Deadline for the goal (ISO date string, e.g. 2026-08-15)'),
     }),
   })
+  @UseGuards(JwtGuard)
   async setStudyGoal(input: { studentId: string; goal: string; deadline: string }, ctx: ExecutionContext) {
     const { studentId, goal, deadline } = input;
     const id = `goal_${Date.now().toString(36)}`;
@@ -149,6 +154,7 @@ export class StudyPlannerTools {
       durationMinutes: z.number().describe('Duration of the study session in minutes'),
     }),
   })
+  @UseGuards(JwtGuard)
   async recordStudySession(input: { studentId: string; topics: string[]; durationMinutes: number }, ctx: ExecutionContext) {
     const { studentId, topics, durationMinutes } = input;
     const topicsJson = JSON.stringify(topics);
@@ -184,6 +190,7 @@ export class StudyPlannerTools {
       studentId: z.string().describe('The student ID'),
     }),
   })
+  @UseGuards(JwtGuard)
   async getDailyBriefing(input: { studentId: string }, ctx: ExecutionContext) {
     const { studentId } = input;
     const student = this.db.getStudent(studentId);
@@ -280,6 +287,7 @@ export class StudyPlannerTools {
       maxTopics: z.number().default(5).describe('Maximum number of topics to suggest (default 5)'),
     }),
   })
+  @UseGuards(JwtGuard)
   async suggestReviewPlan(input: { studentId: string; maxTopics?: number }, ctx: ExecutionContext) {
     const max = input.maxTopics ?? 5;
     const courses = this.db.getStudentCourses(input.studentId);
@@ -332,6 +340,7 @@ export class StudyPlannerTools {
       studentId: z.string().describe('The student ID'),
     }),
   })
+  @UseGuards(JwtGuard)
   async flagAtRiskTopics(input: { studentId: string }, ctx: ExecutionContext) {
     const { studentId } = input;
     const courses = this.db.getStudentCourses(studentId);
@@ -395,5 +404,42 @@ export class StudyPlannerTools {
         ? `Found ${riskFlags.length} at-risk topics. ${riskFlags.filter((f) => f.riskLevel === 'critical').length} need immediate attention.`
         : 'No critical at-risk topics right now.',
     };
+  }
+
+  @Tool({
+    name: 'get_deadline_timeline',
+    description: 'Get deadlines organized for the timeline widget. Returns upcoming assignments sorted by due date with course context.',
+    inputSchema: z.object({
+      studentId: z.string().describe('The student ID'),
+    }),
+  })
+  @UseGuards(JwtGuard)
+  @Widget('deadline-timeline')
+  async getDeadlineTimeline(input: { studentId: string }, ctx: ExecutionContext) {
+    const { studentId } = input;
+    const student = this.db.getStudent(studentId);
+    if (!student) return { ok: false, message: 'Student not found' };
+
+    const assignments = this.db.getUpcomingAssignments(studentId);
+    const courses = this.db.getStudentCourses(studentId);
+    const now = Date.now();
+
+    const deadlines = assignments.map((a) => {
+      const course = courses.find((c) => c.id === a.courseId);
+      const dueMs = new Date(a.dueDate).getTime();
+      const daysUntil = Math.floor((dueMs - now) / (24 * 60 * 60 * 1000));
+      return {
+        id: a.id,
+        title: a.title,
+        course: course?.title ?? 'Unknown',
+        dueDate: a.dueDate,
+        daysUntil,
+        weight: a.weight,
+        urgency: daysUntil <= 1 ? 'critical' : daysUntil <= 3 ? 'high' : daysUntil <= 7 ? 'medium' : 'low',
+      };
+    });
+
+    this.db.logInteraction(studentId, 'deadline_timeline', 'Deadline timeline viewed');
+    return { studentId, count: deadlines.length, deadlines };
   }
 }

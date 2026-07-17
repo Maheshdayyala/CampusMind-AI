@@ -7,9 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { ToolDecorator as Tool, z, Injectable } from '@nitrostack/core';
+import { ToolDecorator as Tool, Widget, UseGuards as UseGuards, z, Injectable } from '@nitrostack/core';
 import { DatabaseService } from '../../common/services/database.service.js';
 import { MasteryService } from '../../common/mastery/mastery.service.js';
+import { JwtGuard } from '../../common/guards/jwt.guard.js';
 let InsightsTools = class InsightsTools {
     db;
     mastery;
@@ -86,6 +87,8 @@ __decorate([
             days: z.number().default(14).describe('Number of days to look back (default 14)'),
         }),
     }),
+    UseGuards(JwtGuard),
+    Widget('progress-dashboard'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)

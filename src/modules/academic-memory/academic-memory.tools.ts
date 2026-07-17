@@ -1,6 +1,7 @@
-import { ToolDecorator as Tool, z, ExecutionContext, Injectable } from '@nitrostack/core';
+import { ToolDecorator as Tool, Widget, UseGuards as UseGuards, z, ExecutionContext, Injectable } from '@nitrostack/core';
 import { DatabaseService } from '../../common/services/database.service.js';
 import { MasteryService } from '../../common/mastery/mastery.service.js';
+import { JwtGuard } from '../../common/guards/jwt.guard.js';
 
 @Injectable({ deps: [DatabaseService, MasteryService] })
 export class AcademicMemoryTools {
@@ -18,6 +19,7 @@ export class AcademicMemoryTools {
       question: z.string().describe('The student\'s question'),
     }),
   })
+  @UseGuards(JwtGuard)
   async askQuestion(input: { studentId: string; courseId: string; question: string }, ctx: ExecutionContext) {
     const { studentId, courseId, question } = input;
     const student = this.db.getStudent(studentId);
@@ -95,6 +97,7 @@ export class AcademicMemoryTools {
       depth: z.enum(['basic', 'detailed', 'advanced']).default('detailed').describe('Explanation depth preference'),
     }),
   })
+  @UseGuards(JwtGuard)
   async explainConcept(input: { studentId: string; conceptId: string; depth?: string }, ctx: ExecutionContext) {
     const { studentId, conceptId, depth = 'detailed' } = input;
     const concept = this.db.getConcept(conceptId);
@@ -143,6 +146,7 @@ export class AcademicMemoryTools {
       correct: z.boolean().describe('Whether the answer was correct'),
     }),
   })
+  @UseGuards(JwtGuard)
   async logQuizResult(input: { studentId: string; conceptId: string; correct: boolean }, ctx: ExecutionContext) {
     const { studentId, conceptId, correct } = input;
     const concept = this.db.getConcept(conceptId);
@@ -183,6 +187,7 @@ export class AcademicMemoryTools {
       note: z.string().describe('What was covered or what is still unclear'),
     }),
   })
+  @UseGuards(JwtGuard)
   async logTopic(input: { studentId: string; subject: string; topic: string; note: string }, ctx: ExecutionContext) {
     const { studentId, subject, topic, note } = input;
     this.db.logInteraction(studentId, 'log_topic', `${subject}: ${topic} — ${note}`.substring(0, 200));
@@ -205,6 +210,7 @@ export class AcademicMemoryTools {
       query: z.string().describe('Keyword or vague phrase to search logged topics'),
     }),
   })
+  @UseGuards(JwtGuard)
   async recallTopic(input: { studentId: string; query: string }, ctx: ExecutionContext) {
     const { studentId, query } = input;
     const q = query.trim().toLowerCase();
@@ -230,5 +236,46 @@ export class AcademicMemoryTools {
       count: matches.length,
       results: matches.slice(0, 20),
     };
+  }
+
+  @Tool({
+    name: 'get_mastery_heatmap',
+    description: 'Get mastery data organized by course for the mastery heatmap widget. Returns courses with their concepts and confidence scores.',
+    inputSchema: z.object({
+      studentId: z.string().describe('The student ID'),
+    }),
+  })
+  @UseGuards(JwtGuard)
+  @Widget('mastery-heatmap')
+  async getMasteryHeatmap(input: { studentId: string }, ctx: ExecutionContext) {
+    const { studentId } = input;
+    const student = this.db.getStudent(studentId);
+    if (!student) return { ok: false, message: 'Student not found' };
+
+    const courses = this.db.getStudentCourses(studentId);
+    const allConcepts = courses.flatMap((c) => this.db.getCourseConcepts(c.id));
+    const mastery = this.db.getStudentMastery(studentId);
+
+    const heatmap = courses.map((course) => {
+      const concepts = allConcepts
+        .filter((c) => c.courseId === course.id)
+        .map((concept) => {
+          const record = mastery.find((m) => m.conceptId === concept.id);
+          const daysSince = record ? this.mastery.computeDaysSinceReview(record.lastReviewed) : 0;
+          const effectiveScore = record ? this.mastery.applyDecay(record.confidenceScore, daysSince) : 0.5;
+          return {
+            conceptId: concept.id,
+            concept: concept.name,
+            courseCode: course.code,
+            confidenceScore: Math.round(effectiveScore * 100) / 100,
+            daysSinceReview: daysSince,
+            timesWrong: record?.timesWrong ?? 0,
+          };
+        });
+      return { code: course.code, title: course.title, concepts };
+    });
+
+    this.db.logInteraction(studentId, 'mastery_heatmap', 'Mastery heatmap viewed');
+    return { studentId, courses: heatmap };
   }
 }

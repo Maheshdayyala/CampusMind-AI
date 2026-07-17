@@ -7,9 +7,10 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { ToolDecorator as Tool, Widget, z, Injectable } from '@nitrostack/core';
+import { ToolDecorator as Tool, Widget, UseGuards as UseGuards, z, Injectable } from '@nitrostack/core';
 import { DatabaseService } from '../../common/services/database.service.js';
 import { MasteryService } from '../../common/mastery/mastery.service.js';
+import { JwtGuard } from '../../common/guards/jwt.guard.js';
 let StudyPlannerTools = class StudyPlannerTools {
     db;
     mastery;
@@ -319,6 +320,31 @@ let StudyPlannerTools = class StudyPlannerTools {
                 : 'No critical at-risk topics right now.',
         };
     }
+    async getDeadlineTimeline(input, ctx) {
+        const { studentId } = input;
+        const student = this.db.getStudent(studentId);
+        if (!student)
+            return { ok: false, message: 'Student not found' };
+        const assignments = this.db.getUpcomingAssignments(studentId);
+        const courses = this.db.getStudentCourses(studentId);
+        const now = Date.now();
+        const deadlines = assignments.map((a) => {
+            const course = courses.find((c) => c.id === a.courseId);
+            const dueMs = new Date(a.dueDate).getTime();
+            const daysUntil = Math.floor((dueMs - now) / (24 * 60 * 60 * 1000));
+            return {
+                id: a.id,
+                title: a.title,
+                course: course?.title ?? 'Unknown',
+                dueDate: a.dueDate,
+                daysUntil,
+                weight: a.weight,
+                urgency: daysUntil <= 1 ? 'critical' : daysUntil <= 3 ? 'high' : daysUntil <= 7 ? 'medium' : 'low',
+            };
+        });
+        this.db.logInteraction(studentId, 'deadline_timeline', 'Deadline timeline viewed');
+        return { studentId, count: deadlines.length, deadlines };
+    }
 };
 __decorate([
     Tool({
@@ -330,6 +356,7 @@ __decorate([
         }),
     }),
     Widget('review-due'),
+    UseGuards(JwtGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
@@ -343,6 +370,7 @@ __decorate([
             conceptId: z.string().describe('The concept ID to mark as reviewed'),
         }),
     }),
+    UseGuards(JwtGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
@@ -357,6 +385,7 @@ __decorate([
             daysAgo: z.number().default(5).describe('How many days to age the last-reviewed timestamp (default 5)'),
         }),
     }),
+    UseGuards(JwtGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
@@ -371,6 +400,7 @@ __decorate([
             deadline: z.string().describe('Deadline for the goal (ISO date string, e.g. 2026-08-15)'),
         }),
     }),
+    UseGuards(JwtGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
@@ -385,6 +415,7 @@ __decorate([
             durationMinutes: z.number().describe('Duration of the study session in minutes'),
         }),
     }),
+    UseGuards(JwtGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
@@ -397,6 +428,7 @@ __decorate([
             studentId: z.string().describe('The student ID'),
         }),
     }),
+    UseGuards(JwtGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
@@ -410,6 +442,7 @@ __decorate([
             maxTopics: z.number().default(5).describe('Maximum number of topics to suggest (default 5)'),
         }),
     }),
+    UseGuards(JwtGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
@@ -422,10 +455,25 @@ __decorate([
             studentId: z.string().describe('The student ID'),
         }),
     }),
+    UseGuards(JwtGuard),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], StudyPlannerTools.prototype, "flagAtRiskTopics", null);
+__decorate([
+    Tool({
+        name: 'get_deadline_timeline',
+        description: 'Get deadlines organized for the timeline widget. Returns upcoming assignments sorted by due date with course context.',
+        inputSchema: z.object({
+            studentId: z.string().describe('The student ID'),
+        }),
+    }),
+    UseGuards(JwtGuard),
+    Widget('deadline-timeline'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], StudyPlannerTools.prototype, "getDeadlineTimeline", null);
 StudyPlannerTools = __decorate([
     Injectable({ deps: [DatabaseService, MasteryService] }),
     __metadata("design:paramtypes", [DatabaseService,

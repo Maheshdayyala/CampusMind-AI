@@ -4,6 +4,7 @@ import { StudentsModule } from './modules/students/students.module.js';
 import { CoursesModule } from './modules/courses/courses.module.js';
 import { AcademicMemoryModule } from './modules/academic-memory/academic-memory.module.js';
 import { StudyPlannerModule } from './modules/study-planner/study-planner.module.js';
+import { VoiceAssistantModule } from './modules/voice-assistant/voice-assistant.module.js';
 import { InsightsModule } from './modules/insights/insights.module.js';
 import { DatabaseService } from './common/services/database.service.js';
 import { JwtGuard } from './common/guards/jwt.guard.js';
@@ -29,6 +30,7 @@ import { SystemHealthCheck } from './health/system.health.js';
     CoursesModule,
     AcademicMemoryModule,
     StudyPlannerModule,
+    VoiceAssistantModule,
     InsightsModule,
   ],
   providers: [

@@ -168,5 +168,28 @@ export declare class StudyPlannerTools {
         };
         message: string;
     }>;
+    getDeadlineTimeline(input: {
+        studentId: string;
+    }, ctx: ExecutionContext): Promise<{
+        ok: boolean;
+        message: string;
+        studentId?: undefined;
+        count?: undefined;
+        deadlines?: undefined;
+    } | {
+        studentId: string;
+        count: number;
+        deadlines: {
+            id: number;
+            title: string;
+            course: string;
+            dueDate: string;
+            daysUntil: number;
+            weight: number;
+            urgency: string;
+        }[];
+        ok?: undefined;
+        message?: undefined;
+    }>;
 }
 //# sourceMappingURL=study-planner.tools.d.ts.map
