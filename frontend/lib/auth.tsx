@@ -86,7 +86,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   return <>{children}</>
 }
 
-const PUBLIC_PATHS = ['/', '/login']
+const PUBLIC_PATHS = ['/', '/login', '/login/']
 
 export function AuthGuard({ children }: { children: ReactNode }) {
   const { loading } = useAuth()
