@@ -1,11 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth'
-import { GraduationCap, Mail, ArrowRight, Sparkles } from 'lucide-react'
+import { GraduationCap, Mail, ArrowRight, Sparkles, Lock } from 'lucide-react'
 
 const DEMO_ACCOUNTS: Record<string, { id: string; name: string }> = {
   'aisha@': { id: 's1', name: 'Aisha' },
@@ -14,6 +13,7 @@ const DEMO_ACCOUNTS: Record<string, { id: string; name: string }> = {
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const { login } = useAuth()
@@ -38,12 +38,8 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bg">
-      <motion.div
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="w-full max-w-md mx-4"
-      >
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg-primary)]">
+      <div className="w-full max-w-md mx-4">
         <div className="card p-8 md:p-10">
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2.5 mb-6">
@@ -67,6 +63,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   className="input-field"
                   required
+                  autoComplete="email"
                 />
               </div>
             </div>
@@ -74,18 +71,20 @@ export default function LoginPage() {
             <div>
               <label className="block text-sm font-medium text-muted mb-1.5">Password</label>
               <div className="search-box">
+                <Lock className="w-4 h-4 text-faint shrink-0" />
                 <input
                   type="password"
                   placeholder="Enter your password"
-                  value={email}
-                  onChange={() => {}}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="input-field"
                   required
+                  autoComplete="current-password"
                 />
               </div>
             </div>
 
-            {error && <p className="text-sm" style={{color:'var(--color-error)'}}>{error}</p>}
+            {error && <p className="text-sm text-[var(--color-error)]">{error}</p>}
 
             <button
               type="submit"
@@ -94,11 +93,7 @@ export default function LoginPage() {
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
-                  <motion.span
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full inline-block"
-                  />
+                  <svg className="animate-spin w-4 h-4 border-2 border-white/30 border-t-white rounded-full" viewBox="0 0 24 24" />
                   Signing in...
                 </span>
               ) : (
@@ -118,7 +113,7 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }
