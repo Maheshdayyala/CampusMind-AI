@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth'
-import { GraduationCap, Sparkles, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
+import { GraduationCap, Mail, ArrowRight, Sparkles } from 'lucide-react'
 
 const DEMO_ACCOUNTS: Record<string, { id: string; name: string }> = {
   'aisha@': { id: 's1', name: 'Aisha' },
@@ -14,8 +14,6 @@ const DEMO_ACCOUNTS: Record<string, { id: string; name: string }> = {
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const { login } = useAuth()
@@ -33,88 +31,67 @@ export default function LoginPage() {
       await login(studentId)
       router.replace('/dashboard')
     } catch (err: any) {
-      setError(err.message || 'Login failed. Try aisha@university.edu or rohan@university.edu')
+      setError(err.message || 'Login failed')
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[var(--bg-primary)]">
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 -left-32 w-[500px] h-[500px] bg-[#1a73e8]/8 rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/4 -right-32 w-[400px] h-[400px] bg-[#0d47a1]/8 rounded-full blur-[100px]" />
-      </div>
-
+    <div className="min-h-screen flex items-center justify-center bg-bg">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        className="relative z-10 w-full max-w-md mx-4"
+        transition={{ duration: 0.6 }}
+        className="w-full max-w-md mx-4"
       >
-        <div className="glass-card-static p-8 md:p-10 glow-border">
+        <div className="card p-8 md:p-10">
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2.5 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1a73e8] to-[#0d47a1] flex items-center justify-center shadow-glow">
-                <GraduationCap className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shadow-sm">
+                <GraduationCap className="w-5 h-5 text-inverse" />
               </div>
             </Link>
             <h1 className="font-display text-2xl font-bold mb-1">Welcome back</h1>
-            <p className="text-[var(--text-secondary)] text-sm">Sign in to your CampusMind account</p>
+            <p className="text-muted text-sm">Sign in to your CampusMind account</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">Email</label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+              <label className="block text-sm font-medium text-muted mb-1.5">Email</label>
+              <div className="search-box">
+                <Mail className="w-4 h-4 text-faint shrink-0" />
                 <input
                   type="email"
                   placeholder="you@university.edu"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="input-field pl-10"
+                  className="input-field"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1.5">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+              <label className="block text-sm font-medium text-muted mb-1.5">Password</label>
+              <div className="search-box">
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type="password"
                   placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="input-field pl-10 pr-10"
+                  value={email}
+                  onChange={() => {}}
+                  className="input-field"
                   required
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-secondary)]"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
               </div>
             </div>
 
-            {error && <p className="text-sm text-[var(--error)]">{error}</p>}
-
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 text-[var(--text-secondary)] cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 rounded border-[var(--border-primary)] bg-transparent accent-[#1a73e8]" />
-                Remember me
-              </label>
-              <a href="#" className="text-[var(--accent-light)] hover:underline">Forgot password?</a>
-            </div>
+            {error && <p className="text-sm" style={{color:'var(--color-error)'}}>{error}</p>}
 
             <button
               type="submit"
               disabled={isLoading}
-              className="btn-primary w-full py-3.5 !rounded-xl disabled:opacity-60 disabled:cursor-not-allowed"
+              className="btn btn-primary w-full py-3.5 !rounded-xl disabled:opacity-60 disabled:cursor-not-allowed justify-center"
             >
               {isLoading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -134,16 +111,9 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-[var(--text-secondary)]">
-              Don&apos;t have an account?{' '}
-              <a href="#" className="text-[var(--accent-light)] hover:underline font-medium">Create one</a>
-            </p>
-          </div>
-
-          <div className="mt-6 pt-6 border-t border-[var(--border-primary)]">
-            <p className="text-xs text-[var(--text-muted)] text-center mb-2">Demo accounts (type any password)</p>
-            <div className="flex items-center justify-center gap-2 text-xs text-[var(--text-muted)]">
+          <div className="mt-6 pt-6 border-t border-border">
+            <p className="text-xs text-faint text-center mb-2">Demo accounts (type any password)</p>
+            <div className="flex items-center justify-center gap-2 text-xs text-faint">
               <Sparkles className="w-3 h-3" />
               <span>Use aisha@ or rohan@ to log in instantly</span>
             </div>

@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Sidebar from './Sidebar'
-import Particles from './Particles'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { AuthGuard } from '@/lib/auth'
@@ -20,8 +19,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {isAuthPage ? (
         <>{children}</>
       ) : (
-        <div className="min-h-screen bg-[var(--bg-primary)]">
-          <Particles count={30} />
+        <div className="min-h-screen">
           <Sidebar
             collapsed={sidebarCollapsed}
             onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -29,11 +27,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <main
             className={cn(
               'transition-all duration-300 min-h-screen',
-              sidebarCollapsed ? 'ml-[72px]' : 'ml-[260px]'
+              sidebarCollapsed ? 'ml-[72px]' : 'ml-[272px]'
             )}
           >
             {children}
-            <div className="text-center py-4 text-[10px] text-[var(--text-muted)] opacity-50">
+            <div className="text-center py-4 text-[10px] text-faint opacity-50">
               Powered by MCP
             </div>
           </main>

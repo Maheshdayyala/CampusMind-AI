@@ -239,6 +239,23 @@ export async function getStudentMemory(studentId: string): Promise<unknown> {
   })
 }
 
+// --- Voice Assistant ---
+
+export interface VoiceSessionResult { ok: boolean; sessionId: string; message: string; transcript: { role: string; text: string; timestamp: string }[] }
+export async function startVoiceSession(studentId: string): Promise<VoiceSessionResult> {
+  return callTool<VoiceSessionResult>('start_voice_session', { studentId })
+}
+
+export interface ProcessVoiceResult { ok: boolean; text: string; response: string; sessionId: string }
+export async function processVoiceInput(studentId: string, sessionId: string, audioData: string, mimeType?: string): Promise<ProcessVoiceResult> {
+  return callTool<ProcessVoiceResult>('process_voice_input', { studentId, sessionId, audioData, mimeType })
+}
+
+export interface EndVoiceSessionResult { ok: boolean; sessionId: string; duration: number; transcript: { role: string; text: string; timestamp: string }[]; summary: string }
+export async function endVoiceSession(studentId: string, sessionId: string): Promise<EndVoiceSessionResult> {
+  return callTool<EndVoiceSessionResult>('end_voice_session', { studentId, sessionId })
+}
+
 export async function getSyllabus(courseId: string): Promise<string> {
   return track('resources/read (syllabus)', { courseId }, async () => {
     const res = await fetch(`${MCP_URL}/mcp`, {
