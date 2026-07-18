@@ -3,20 +3,40 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/lib/auth'
 import { GraduationCap, Sparkles, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
+
+const DEMO_ACCOUNTS: Record<string, { id: string; name: string }> = {
+  'aisha@': { id: 's1', name: 'Aisha' },
+  'rohan@': { id: 's2', name: 'Rohan' },
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const { login } = useAuth()
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
     setIsLoading(true)
-    await new Promise(r => setTimeout(r, 1000))
-    setIsLoading(false)
-    window.location.href = '/dashboard'
+
+    const match = Object.entries(DEMO_ACCOUNTS).find(([key]) => email.toLowerCase().includes(key))
+    const studentId = match ? match[1].id : 's1'
+
+    try {
+      await login(studentId)
+      router.replace('/dashboard')
+    } catch (err: any) {
+      setError(err.message || 'Login failed. Try aisha@university.edu or rohan@university.edu')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -81,6 +101,8 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {error && <p className="text-sm text-[var(--error)]">{error}</p>}
+
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 text-[var(--text-secondary)] cursor-pointer">
                 <input type="checkbox" className="w-4 h-4 rounded border-[var(--border-primary)] bg-transparent accent-[#1a73e8]" />
@@ -120,9 +142,10 @@ export default function LoginPage() {
           </div>
 
           <div className="mt-6 pt-6 border-t border-[var(--border-primary)]">
+            <p className="text-xs text-[var(--text-muted)] text-center mb-2">Demo accounts (type any password)</p>
             <div className="flex items-center justify-center gap-2 text-xs text-[var(--text-muted)]">
               <Sparkles className="w-3 h-3" />
-              <span>AI-powered academic memory system</span>
+              <span>Use aisha@ or rohan@ to log in instantly</span>
             </div>
           </div>
         </div>

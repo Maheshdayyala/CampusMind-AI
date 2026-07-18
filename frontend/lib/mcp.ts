@@ -1,179 +1,253 @@
-export interface MemoryEntry {
-  id: string
-  subject: string
-  topic: string
-  note: string
-  loggedAt: string
-  lastReviewedAt: string
-  reviewCount: number
-  confidenceScore?: number
+const MCP_URL = process.env.NEXT_PUBLIC_MCP_URL || ''
+export const ENDPOINT = `${MCP_URL}/mcp`
+
+let sessionId: string | null = null
+let jwtToken: string | null = null
+
+export function getSessionId() { return sessionId }
+export function getJwtToken() { return jwtToken || (typeof window !== 'undefined' ? localStorage.getItem('campusmind_token') : null) }
+
+function getJwt(): string | null {
+  if (jwtToken) return jwtToken
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('campusmind_token')
+  }
+  return null
 }
 
-export interface Course {
-  id: string
-  code: string
-  title: string
-  term: string
+export function setJwt(token: string | null) {
+  jwtToken = token
+  if (typeof window !== 'undefined') {
+    if (token) localStorage.setItem('campusmind_token', token)
+    else localStorage.removeItem('campusmind_token')
+  }
 }
 
-export interface Assignment {
-  id: number
-  courseId: string
-  title: string
-  dueDate: string
-  weight: number
-  course?: Course
+export function clearSession() {
+  sessionId = null
+  setJwt(null)
 }
 
-export interface Concept {
-  id: string
-  courseId: string
-  name: string
-  description: string
-  confidenceScore?: number
-}
+// --- Dev tracking ---
 
-export interface StudySession {
-  id: string
-  date: string
+export interface McpCallEvent {
+  tool: string
+  timestamp: string
   duration: number
-  topics: string[]
-  notes?: string
+  status: 'success' | 'error'
+  payload?: unknown
+  response?: unknown
+  errorMessage?: string
 }
 
-export interface Analytics {
-  studyStreak: number
-  memoryScore: number
-  weakTopics: { name: string; confidence: number }[]
-  reviewDue: number
-  upcomingExams: { course: string; date: string; daysUntil: number }[]
-  assignments: Assignment[]
-  totalEntries: number
-  activeCourses: number
+export const mcpDev = {
+  events: [] as McpCallEvent[],
+  MAX_EVENTS: 200,
+  get connected() { return !!sessionId },
+  get authenticated() { return !!getJwt() },
 }
 
-const sleep = (ms: number) => new Promise(r => setTimeout(r, ms))
-
-const mockEntries: MemoryEntry[] = [
-  { id: 'm1', subject: 'Automata Theory', topic: 'NFA to DFA Conversion', note: 'Understood the subset construction algorithm. Need more practice with epsilon transitions.', loggedAt: '2026-07-14T10:30:00Z', lastReviewedAt: '2026-07-14T10:30:00Z', reviewCount: 1, confidenceScore: 0.42 },
-  { id: 'm2', subject: 'Automata Theory', topic: 'Regular Expressions', note: 'Covered basic patterns and Kleene star. Clear on most concepts.', loggedAt: '2026-07-12T14:00:00Z', lastReviewedAt: '2026-07-13T09:00:00Z', reviewCount: 3, confidenceScore: 0.75 },
-  { id: 'm3', subject: 'Data Structures', topic: 'Binary Search Trees', note: 'Insertion and deletion algorithms. Struggling with balancing.', loggedAt: '2026-07-10T11:00:00Z', lastReviewedAt: '2026-07-10T11:00:00Z', reviewCount: 1, confidenceScore: 0.55 },
-  { id: 'm4', subject: 'Data Structures', topic: 'Hash Tables', note: 'Collision resolution strategies: chaining and open addressing.', loggedAt: '2026-07-08T16:00:00Z', lastReviewedAt: '2026-07-11T10:00:00Z', reviewCount: 2, confidenceScore: 0.7 },
-  { id: 'm5', subject: 'Calculus', topic: 'Limits and Continuity', note: 'Epsilon-delta definition still fuzzy. Need to review.', loggedAt: '2026-07-05T09:30:00Z', lastReviewedAt: '2026-07-05T09:30:00Z', reviewCount: 0, confidenceScore: 0.3 },
-  { id: 'm6', subject: 'Calculus', topic: 'Derivatives', note: 'Power rule, chain rule, product rule. Comfortable with basic problems.', loggedAt: '2026-07-03T13:00:00Z', lastReviewedAt: '2026-07-07T11:00:00Z', reviewCount: 2, confidenceScore: 0.8 },
-  { id: 'm7', subject: 'Automata Theory', topic: 'Closure Properties', note: 'Regular languages under union, concatenation, star. Need more proofs practice.', loggedAt: '2026-07-01T10:00:00Z', lastReviewedAt: '2026-07-01T10:00:00Z', reviewCount: 0, confidenceScore: 0.3 },
-]
-
-const mockCourses: Course[] = [
-  { id: 'c1', code: 'CS201', title: 'Automata Theory', term: 'Fall 2026' },
-  { id: 'c2', code: 'CS101', title: 'Intro to Programming', term: 'Fall 2026' },
-  { id: 'c3', code: 'PHY101', title: 'Classical Mechanics', term: 'Fall 2026' },
-]
-
-const mockAssignments: Assignment[] = [
-  { id: 1, courseId: 'c1', title: 'DFA Minimization Problem Set', dueDate: '2026-07-20', weight: 0.15 },
-  { id: 2, courseId: 'c1', title: 'Regular Expression Proofs', dueDate: '2026-07-31', weight: 0.2 },
-  { id: 3, courseId: 'c2', title: 'Array Manipulation Project', dueDate: '2026-07-24', weight: 0.25 },
-  { id: 4, courseId: 'c3', title: 'Inclined Plane Lab Report', dueDate: '2026-07-24', weight: 0.15 },
-]
-
-export async function mcpLogTopic(subject: string, topic: string, note: string): Promise<{ id: string }> {
-  await sleep(300)
-  const id = `m${Date.now()}`
-  return { id }
+function track(label: string, payload: unknown, fn: () => Promise<unknown>): Promise<unknown> {
+  const start = Date.now()
+  return fn()
+    .then(res => {
+      mcpDev.events.push({ tool: label, timestamp: new Date().toISOString(), duration: Date.now() - start, status: 'success', payload, response: res })
+      if (mcpDev.events.length > mcpDev.MAX_EVENTS) mcpDev.events = mcpDev.events.slice(-mcpDev.MAX_EVENTS)
+      return res
+    })
+    .catch(err => {
+      mcpDev.events.push({ tool: label, timestamp: new Date().toISOString(), duration: Date.now() - start, status: 'error', payload, errorMessage: err.message })
+      if (mcpDev.events.length > mcpDev.MAX_EVENTS) mcpDev.events = mcpDev.events.slice(-mcpDev.MAX_EVENTS)
+      throw err
+    })
 }
 
-export async function mcpRecallTopic(query: string): Promise<MemoryEntry[]> {
-  await sleep(400)
-  const q = query.toLowerCase()
-  return mockEntries.filter(e =>
-    e.subject.toLowerCase().includes(q) ||
-    e.topic.toLowerCase().includes(q) ||
-    e.note.toLowerCase().includes(q)
-  ).sort((a, b) => new Date(b.loggedAt).getTime() - new Date(a.loggedAt).getTime())
+let rpcId = 1
+async function jsonRpc(method: string, params?: unknown) {
+  const token = getJwt()
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (token) headers['Authorization'] = `Bearer ${token}`
+  if (sessionId) headers['Mcp-Session-Id'] = sessionId
+
+  const body = { jsonrpc: '2.0', id: rpcId++, method, params }
+  const res = await fetch(ENDPOINT, { method: 'POST', headers, body: JSON.stringify(body) })
+
+  const sid = res.headers.get('mcp-session-id')
+  if (sid) sessionId = sid
+
+  const json = await res.json()
+  if (json.error) throw new Error(json.error.message || 'MCP error')
+  return json.result
 }
 
-export async function mcpGetReviewDue(daysThreshold: number = 3): Promise<MemoryEntry[]> {
-  await sleep(300)
-  const now = Date.now()
-  const threshold = daysThreshold * 24 * 60 * 60 * 1000
-  return mockEntries
-    .filter(e => (now - new Date(e.lastReviewedAt).getTime()) > threshold)
-    .sort((a, b) => new Date(a.lastReviewedAt).getTime() - new Date(b.lastReviewedAt).getTime())
+export async function initialize() {
+  return track('initialize', {}, () =>
+    jsonRpc('initialize', {
+      protocolVersion: '2025-06-18',
+      capabilities: {},
+      clientInfo: { name: 'campusmind-webapp', version: '1.0.0' },
+    })
+  )
 }
 
-export async function mcpMarkReviewed(id: string): Promise<void> {
-  await sleep(200)
+export async function callTool<T = unknown>(name: string, args: Record<string, unknown>): Promise<T> {
+  if (!sessionId) await initialize()
+  return track(name, args, () => jsonRpc('tools/call', { name, arguments: args })) as Promise<T>
 }
 
-export async function getAnalytics(): Promise<Analytics> {
-  await sleep(500)
-  return {
-    studyStreak: 12,
-    memoryScore: 68,
-    weakTopics: [
-      { name: 'NFA to DFA', confidence: 0.42 },
-      { name: 'Closure Properties', confidence: 0.3 },
-      { name: 'Limits & Continuity', confidence: 0.3 },
-      { name: 'BST Balancing', confidence: 0.55 },
-    ],
-    reviewDue: 5,
-    upcomingExams: [
-      { course: 'Automata Theory', date: '2026-07-25', daysUntil: 8 },
-      { course: 'Data Structures', date: '2026-08-01', daysUntil: 15 },
-    ],
-    assignments: mockAssignments,
-    totalEntries: 24,
-    activeCourses: 3,
-  }
+// Generic MCP request for diagnostics page
+export async function mcpRequest<T = unknown>(method: string, params?: unknown): Promise<T> {
+  if (!sessionId && method !== 'initialize') await initialize()
+  return jsonRpc(method, params) as Promise<T>
 }
 
-export async function getCourses(): Promise<Course[]> {
-  await sleep(200)
-  return mockCourses
+// --- Typed wrappers ---
+
+export interface StudentInfo { id: string; name: string; program: string; year: number }
+export interface LoginResult { ok: boolean; token: string; student: StudentInfo; message: string }
+export async function login(studentId: string): Promise<LoginResult> {
+  const result = await callTool<LoginResult>('login', { studentId })
+  if (result.ok) setJwt(result.token)
+  return result
 }
 
-export async function getAssignments(): Promise<Assignment[]> {
-  await sleep(200)
-  return mockAssignments
+export interface BriefingDeadline { id: number; title: string; course: string; dueDate: string; daysUntil: number; urgency: string }
+export interface DailyBriefing {
+  ok: boolean; student: string; date: string; overview: { enrolledCourses: number; weakTopicsCount: number; assignmentsDueSoon: number; studyStreak: number; recentStudyDays: number }
+  deadlines: BriefingDeadline[]; reviewRecommended: { concept: string; course: string; confidence: number; daysSinceReview: number }[]
+  urgentAttention: { concept: string; course: string; reason: string }[]; message: string
+}
+export async function getDailyBriefing(studentId: string): Promise<DailyBriefing> {
+  return callTool<DailyBriefing>('get_daily_briefing', { studentId })
 }
 
-export async function generateExamPlan(examName: string, daysUntil: number): Promise<{
-  revisionPlan: { day: number; topics: string[]; duration: string }[]
-  weakTopics: string[]
-  quiz: { question: string; options: string[]; correct: number }[]
-  flashcards: { front: string; back: string }[]
-  schedule: { time: string; activity: string }[]
-}> {
-  await sleep(800)
-  return {
-    revisionPlan: [
-      { day: 1, topics: ['NFA to DFA Conversion', 'Regular Expressions'], duration: '2 hours' },
-      { day: 2, topics: ['Closure Properties', 'Pumping Lemma'], duration: '2 hours' },
-      { day: 3, topics: ['Context-Free Grammars', 'Pushdown Automata'], duration: '2.5 hours' },
-      { day: 4, topics: ['Turing Machines', 'Undecidability'], duration: '2.5 hours' },
-      { day: 5, topics: ['Previous Year Questions', 'Mock Test'], duration: '3 hours' },
-      { day: 6, topics: ['Weak Areas Revision', 'Formula Review'], duration: '2 hours' },
-      { day: 7, topics: ['Final Revision', 'Confidence Building'], duration: '2 hours' },
-    ],
-    weakTopics: ['NFA to DFA (42%)', 'Closure Properties (30%)', 'Pumping Lemma (45%)'],
-    quiz: [
-      { question: 'Which of the following is true about NFA to DFA conversion?', options: ['Every NFA has an equivalent DFA', 'NFA has more states than DFA', 'DFA cannot simulate NFA', 'NFA is more powerful than DFA'], correct: 0 },
-      { question: 'What is the closure property of regular languages?', options: ['Closed under union only', 'Closed under union, concatenation, and Kleene star', 'Closed under intersection only', 'Not closed under any operation'], correct: 1 },
-      { question: 'Which language class does a PDA recognize?', options: ['Regular', 'Context-Free', 'Context-Sensitive', 'Recursively Enumerable'], correct: 1 },
-      { question: 'What does the Pumping Lemma prove?', options: ['A language is regular', 'A language is not regular', 'A language is context-free', 'A language is Turing-decidable'], correct: 1 },
-    ],
-    flashcards: [
-      { front: 'What is an NFA?', back: 'Nondeterministic Finite Automaton - allows multiple transitions for same input, including epsilon moves.' },
-      { front: 'Closure Properties of Regular Languages', back: 'Regular languages are closed under union, concatenation, Kleene star, complement, and intersection.' },
-      { front: 'What does a PDA consist of?', back: 'Pushdown Automaton: finite states, input tape, stack memory. Recognizes context-free languages.' },
-      { front: 'Church-Turing Thesis', back: 'Any effectively calculable function can be computed by a Turing Machine.' },
-    ],
-    schedule: [
-      { time: '06:00 - 07:00', activity: 'Morning revision: Weak topics' },
-      { time: '09:00 - 11:00', activity: 'Deep work: Core concepts' },
-      { time: '14:00 - 16:00', activity: 'Practice: Previous year questions' },
-      { time: '20:00 - 21:00', activity: 'Review: Flashcards & Quiz' },
-    ],
-  }
+export interface ConceptMastery { concept: string; courseCode: string | null; confidenceScore: number; rawScore: number; daysSinceReview: number; timesWrong: number }
+export interface ProgressSummary {
+  ok: boolean; student: string; periodDays: number
+  overview: { averageConfidence: number; weakTopicsCount: number; totalConceptsTracked: number; studySessionsCompleted: number; estimatedStudyMinutes: number; totalInteractions: number }
+  conceptMastery: ConceptMastery[]; recentActivity: { date: string; type: string; summary: string }[]; message: string
+}
+export async function getProgressSummary(studentId: string, days = 14): Promise<ProgressSummary> {
+  return callTool<ProgressSummary>('get_progress_summary', { studentId, days })
+}
+
+export interface ReviewDueItem { conceptId: string; conceptName: string; courseCode: string | null; confidenceScore: number; rawScore: number; lastReviewedAt: string; daysSinceReview: number; timesWrong: number }
+export interface ReviewDueResult { studentId: string; daysThreshold: number; count: number; results: ReviewDueItem[] }
+export async function getReviewDue(studentId: string, daysThreshold = 3): Promise<ReviewDueResult> {
+  return callTool<ReviewDueResult>('get_review_due', { studentId, daysThreshold })
+}
+
+export interface MarkReviewedResult { ok: boolean; conceptId: string; conceptName: string; previousScore: number; newScore: number; lastReviewedAt: string; message: string }
+export async function markReviewed(studentId: string, conceptId: string): Promise<MarkReviewedResult> {
+  return callTool<MarkReviewedResult>('mark_reviewed', { studentId, conceptId })
+}
+
+export interface AskQuestionResult { ok: boolean; student: string; course: string; question: string; context: { syllabus: string }; relevantConcepts: { concept: string; confidenceScore: number; daysSinceReview: number }[]; detectedConfusion: boolean; masteryUpdate: { delta: number; timesWrongDelta: number }; message: string }
+export async function askQuestion(studentId: string, courseId: string, question: string): Promise<AskQuestionResult> {
+  return callTool<AskQuestionResult>('ask_question', { studentId, courseId, question })
+}
+
+export interface ExplainConceptResult { ok: boolean; concept: { id: string; name: string; description: string }; course: { id: string; title: string } | null; mastery: { confidenceScore: number; daysSinceReview: number; timesWrong: number }; depth: string; recommendedDepth: string; message: string }
+export async function explainConcept(studentId: string, conceptId: string, depth = 'detailed'): Promise<ExplainConceptResult> {
+  return callTool<ExplainConceptResult>('explain_concept', { studentId, conceptId, depth })
+}
+
+export interface LogTopicResult { id: string; subject: string; topic: string; note: string; loggedAt: string; message: string }
+export async function logTopic(studentId: string, subject: string, topic: string, note: string): Promise<LogTopicResult> {
+  return callTool<LogTopicResult>('log_topic', { studentId, subject, topic, note })
+}
+
+export interface RecallTopicResult { query: string; count: number; results: { id: string; summary: string; type: string; timestamp: string; channel: string }[] }
+export async function recallTopic(studentId: string, query: string): Promise<RecallTopicResult> {
+  return callTool<RecallTopicResult>('recall_topic', { studentId, query })
+}
+
+export interface CourseInfo { id: string; code: string; title: string; term: string }
+export interface ListCoursesResult { count: number; courses: CourseInfo[] }
+export async function listCourses(studentId: string): Promise<ListCoursesResult> {
+  return callTool<ListCoursesResult>('list_courses', { studentId })
+}
+
+export interface AssignmentInfo { id: number; courseId: string; title: string; dueDate: string; weight: number }
+export interface DeadlineTimelineResult { studentId: string; count: number; deadlines: { id: number; title: string; course: string; dueDate: string; daysUntil: number; weight: number; urgency: string }[] }
+export async function getDeadlineTimeline(studentId: string): Promise<DeadlineTimelineResult> {
+  return callTool<DeadlineTimelineResult>('get_deadline_timeline', { studentId })
+}
+
+export interface AtRiskTopic { conceptId: string; concept: string; course: string; confidenceScore: number; daysSinceReview: number; timesWrong: number; nearestDeadline: { title: string; daysToDeadline: number; dueDate: string } | null; riskScore: number; riskLevel: string }
+export interface FlagAtRiskResult { ok: boolean; count: number; atRiskTopics: AtRiskTopic[]; summary: { critical: number; high: number; medium: number }; message: string }
+export async function flagAtRiskTopics(studentId: string): Promise<FlagAtRiskResult> {
+  return callTool<FlagAtRiskResult>('flag_at_risk_topics', { studentId })
+}
+
+export interface ReviewPlanItem { day: number; concept: string; course: string | null; currentConfidence: number; recommendedDuration: number; reason: string }
+export interface SuggestReviewPlanResult { ok: boolean; planTitle: string; totalRecommended: number; plan: ReviewPlanItem[]; message: string }
+export async function suggestReviewPlan(studentId: string, maxTopics = 5): Promise<SuggestReviewPlanResult> {
+  return callTool<SuggestReviewPlanResult>('suggest_review_plan', { studentId, maxTopics })
+}
+
+export interface RecordSessionResult { ok: boolean; sessionId: string; topics: string[]; durationMinutes: number; message: string }
+export async function recordStudySession(studentId: string, topics: string[], durationMinutes: number): Promise<RecordSessionResult> {
+  return callTool<RecordSessionResult>('record_study_session', { studentId, topics, durationMinutes })
+}
+
+export interface SetGoalResult { ok: boolean; goalId: string; goal: string; deadline: string; message: string }
+export async function setStudyGoal(studentId: string, goal: string, deadline: string): Promise<SetGoalResult> {
+  return callTool<SetGoalResult>('set_study_goal', { studentId, goal, deadline })
+}
+
+export interface HeatmapCourse { code: string; title: string; concepts: { conceptId: string; concept: string; courseCode: string; confidenceScore: number; daysSinceReview: number; timesWrong: number }[] }
+export interface MasteryHeatmapResult { studentId: string; courses: HeatmapCourse[] }
+export async function getMasteryHeatmap(studentId: string): Promise<MasteryHeatmapResult> {
+  return callTool<MasteryHeatmapResult>('get_mastery_heatmap', { studentId })
+}
+
+export interface GetConceptResult { ok: boolean; concept: { id: string; name: string; description: string; course: { id: string; code: string; title: string } | null }; mastery: { confidenceScore: number; lastReviewed: string; timesWrong: number } }
+export async function getConcept(studentId: string, conceptId: string): Promise<GetConceptResult> {
+  return callTool<GetConceptResult>('get_concept', { studentId, conceptId })
+}
+
+export interface LogQuizResult { ok: boolean; concept: string; correct: boolean; previousScore: number; newScore: number; timesWrong: number; message: string }
+export async function logQuizResult(studentId: string, conceptId: string, correct: boolean): Promise<LogQuizResult> {
+  return callTool<LogQuizResult>('log_quiz_result', { studentId, conceptId, correct })
+}
+
+export interface WeakTopicsResult { studentId: string; count: number; weakTopics: { conceptId: string; concept: string; courseCode: string | null; confidenceScore: number; timesWrong: number; daysSinceReview: number; urgencyScore: number }[] }
+export async function getWeakTopics(studentId: string): Promise<WeakTopicsResult> {
+  return track('resources/read (weak-topics)', { studentId }, async () => {
+    const res = await fetch(`${MCP_URL}/mcp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(getJwt() ? { Authorization: `Bearer ${getJwt()}` } : {}) },
+      body: JSON.stringify({ jsonrpc: '2.0', id: rpcId++, method: 'resources/read', params: { uri: `student://${studentId}/weak-topics` } }),
+    })
+    const json = await res.json()
+    if (json.error) throw new Error(json.error.message || 'Resource error')
+    return JSON.parse(json.result.contents?.[0]?.text || json.result.text || '{}')
+  })
+}
+
+export async function getStudentMemory(studentId: string): Promise<unknown> {
+  return track('resources/read (memory)', { studentId }, async () => {
+    const res = await fetch(`${MCP_URL}/mcp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...(getJwt() ? { Authorization: `Bearer ${getJwt()}` } : {}) },
+      body: JSON.stringify({ jsonrpc: '2.0', id: rpcId++, method: 'resources/read', params: { uri: `student://${studentId}/memory` } }),
+    })
+    const json = await res.json()
+    if (json.error) throw new Error(json.error.message || 'Resource error')
+    return JSON.parse(json.result.contents?.[0]?.text || json.result.text || '{}')
+  })
+}
+
+export async function getSyllabus(courseId: string): Promise<string> {
+  return track('resources/read (syllabus)', { courseId }, async () => {
+    const res = await fetch(`${MCP_URL}/mcp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: rpcId++, method: 'resources/read', params: { uri: `course://${courseId}/syllabus` } }),
+    })
+    const json = await res.json()
+    if (json.error) throw new Error(json.error.message || 'Resource error')
+    return json.result.contents?.[0]?.text || json.result.text || ''
+  })
 }

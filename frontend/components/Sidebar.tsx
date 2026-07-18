@@ -17,6 +17,7 @@ import {
   GraduationCap,
   ChevronLeft,
   Zap,
+  Bug,
 } from 'lucide-react'
 
 const navItems = [
@@ -29,6 +30,7 @@ const navItems = [
   { href: '/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/exam-mode', label: 'Exam Mode', icon: Zap },
   { href: '/settings', label: 'Settings', icon: Settings },
+  { href: '/developer', label: 'Developer', icon: Bug },
 ]
 
 interface SidebarProps {
