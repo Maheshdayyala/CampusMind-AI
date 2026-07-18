@@ -92,8 +92,8 @@ export function AuthGuard({ children }: { children: ReactNode }) {
   const { loading } = useAuth()
   const pathname = usePathname()
 
-  if (loading) return null
   if (PUBLIC_PATHS.includes(pathname)) return <>{children}</>
+  if (loading) return null
 
   return <ProtectedRoute>{children}</ProtectedRoute>
 }
