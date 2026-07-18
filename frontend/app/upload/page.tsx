@@ -25,7 +25,8 @@ export default function UploadPage() {
   }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.length > 0) setFiles(Array.from(e.target.files))
+    const f = e.target.files
+    if (f && f.length > 0) setFiles(Array.from(f))
   }
 
   const handleUpload = async () => {

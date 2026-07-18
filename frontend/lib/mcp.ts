@@ -47,7 +47,7 @@ export const mcpDev = {
   get authenticated() { return !!getJwt() },
 }
 
-function track(label: string, payload: unknown, fn: () => Promise<unknown>): Promise<unknown> {
+function track<T>(label: string, payload: unknown, fn: () => Promise<T>): Promise<T> {
   const start = Date.now()
   return fn()
     .then(res => {
