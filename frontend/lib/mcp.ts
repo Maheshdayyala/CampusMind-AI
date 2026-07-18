@@ -70,7 +70,7 @@ async function jsonRpc(method: string, params?: unknown) {
   if (sessionId) headers['Mcp-Session-Id'] = sessionId
 
   const body = { jsonrpc: '2.0', id: rpcId++, method, params }
-  const res = await fetch(ENDPOINT, { method: 'POST', headers, body: JSON.stringify(body) })
+  const res = await fetch(ENDPOINT, { method: 'POST', headers: { ...headers, 'Accept': 'application/json, text/event-stream' }, body: JSON.stringify(body) })
 
   const sid = res.headers.get('mcp-session-id')
   if (sid) sessionId = sid
