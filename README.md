@@ -32,7 +32,6 @@ CampusMind AI automatically performs actions such as:
 - Recalling old doubts using natural language
 - Identifying weak concepts
 - Generating personalized study plans
-- Scheduling spaced repetition reviews
 - Tracking learning progress and study streaks
 - Creating AI-assisted exam preparation plans
 
