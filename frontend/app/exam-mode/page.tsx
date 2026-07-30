@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import { useAuth } from '@/lib/auth'
 import { flagAtRiskTopics, suggestReviewPlan, getProgressSummary, getReviewDue, explainConcept } from '@/lib/mcp'
 import { cn } from '@/lib/utils'
 import { Zap, AlertCircle, RefreshCw } from 'lucide-react'
+import { FadeUp } from '@/lib/animations'
 
 export default function ExamModePage() {
   const { studentId } = useAuth()
@@ -71,6 +73,7 @@ export default function ExamModePage() {
 
   return (
     <div>
+      <FadeUp>
       <div className="mb-8">
         <h1 className="font-display text-3xl text-text">Exam Mode</h1>
         <p className="text-sm text-muted mt-1">Powered by your mastery data</p>
@@ -208,6 +211,7 @@ export default function ExamModePage() {
           )}
         </div>
       ) : null}
+      </FadeUp>
     </div>
   )
 }

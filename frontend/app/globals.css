@@ -88,25 +88,46 @@ h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 400; line-height
     background: transparent;
     color: var(--color-text-secondary);
   }
-  .btn:hover { color: var(--color-text); border-color: var(--color-divider); }
+  .btn:hover { color: var(--color-text); border-color: var(--color-divider); transform: translateY(-0.5px); }
+  .btn:active { transform: translateY(0); }
   .btn-primary {
     background: var(--color-accent);
     color: var(--color-text-inverse);
     border-color: transparent;
   }
-  .btn-primary:hover { background: var(--color-accent-hover); color: var(--color-text-inverse); }
+  .btn-primary:hover { background: var(--color-accent-hover); color: var(--color-text-inverse); box-shadow: 0 2px 8px rgba(30, 58, 95, 0.25); transform: translateY(-0.5px); }
+  .btn-primary:active { transform: translateY(0); box-shadow: none; }
   .btn-ghost { border-color: transparent; }
   .btn-ghost:hover { background: var(--color-surface-offset); border-color: transparent; }
   .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8125rem; }
   .btn-xs { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+  button, a, [role="button"] { transition: all var(--transition); }
+  button:active, a:active, [role="button"]:active { transform: scale(0.97); }
 
   .card {
     background: var(--color-surface);
     border-radius: var(--radius-lg);
     padding: 1.5rem;
+    transition: all var(--transition);
   }
-  .card-hover { transition: all var(--transition); }
-  .card-hover:hover { box-shadow: var(--shadow-md); }
+  .card-hover { transition: all var(--transition); cursor: pointer; }
+  .card-hover:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .card-elevated {
+    background: var(--color-surface);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition);
+  }
+  .card-elevated:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+  .card-flat {
+    background: var(--color-surface-2);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+  }
 
   .tag {
     display: inline-flex; align-items: center;

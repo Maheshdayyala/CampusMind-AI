@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth'
 import { recallTopic, logTopic, getStudentMemory } from '@/lib/mcp'
 import { timeAgo } from '@/lib/utils'
 import { Search, Plus, Brain } from 'lucide-react'
+import { FadeUp } from '@/lib/animations'
 import { cn } from '@/lib/utils'
 
 interface MemoryDisplay {
@@ -116,6 +117,7 @@ export default function MemoryPage() {
 
   return (
     <div>
+      <FadeUp>
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="font-display text-3xl text-text">Memory</h1>
@@ -188,6 +190,7 @@ export default function MemoryPage() {
           ))}
         </div>
       )}
+      </FadeUp>
     </div>
   )
 }

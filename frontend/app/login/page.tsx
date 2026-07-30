@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth'
 import { GraduationCap, ArrowRight, Sparkles } from 'lucide-react'
+import { FadeUp, ScaleIn } from '@/lib/animations'
 
 const DEMO_ACCOUNTS: Record<string, { email: string; password: string; name: string; program: string }> = {
   'aisha@university.edu': { email: 'aisha@university.edu', password: 'password123', name: 'Aisha', program: 'BSc Computer Science' },
@@ -34,19 +36,27 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bg px-4">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+      className="min-h-screen flex items-center justify-center bg-bg px-4"
+    >
       <div className="w-full max-w-sm">
-        <div className="text-center mb-10">
-          <Link href="/" className="inline-flex items-center gap-2 mb-5">
-            <div className="w-8 h-8 rounded-md bg-accent flex items-center justify-center">
-              <GraduationCap className="w-4 h-4 text-inverse" />
-            </div>
-          </Link>
-          <h1 className="font-display text-2xl text-text mb-1">Welcome back</h1>
-          <p className="text-sm text-muted">Sign in to your CampusMind account</p>
-        </div>
+        <FadeUp>
+          <div className="text-center mb-10">
+            <Link href="/" className="inline-flex items-center gap-2 mb-5">
+              <motion.div whileHover={{ rotate: -5 }} className="w-8 h-8 rounded-md bg-accent flex items-center justify-center">
+                <GraduationCap className="w-4 h-4 text-inverse" />
+              </motion.div>
+            </Link>
+            <h1 className="font-display text-2xl text-text mb-1">Welcome back</h1>
+            <p className="text-sm text-muted">Sign in to your CampusMind account</p>
+          </div>
+        </FadeUp>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <FadeUp delay={0.1}>
+          <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <input
               type="text"
@@ -91,7 +101,9 @@ export default function LoginPage() {
             )}
           </button>
         </form>
+        </FadeUp>
 
+        <FadeUp delay={0.2}>
         <div className="mt-10 pt-6 border-t border-divider">
           <p className="text-xs text-center text-faint mb-3">Demo accounts</p>
           <div className="space-y-2">
@@ -115,7 +127,8 @@ export default function LoginPage() {
             Password: <span className="text-text font-mono text-[11px]">password123</span> / <span className="text-text font-mono text-[11px]">pass456</span>
           </p>
         </div>
+        </FadeUp>
       </div>
-    </div>
+    </motion.div>
   )
 }

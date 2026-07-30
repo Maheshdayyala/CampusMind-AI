@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth'
 import { logTopic } from '@/lib/mcp'
 import { cn } from '@/lib/utils'
 import { Upload as UploadIcon, FileText, CheckCircle2, X, ArrowRight } from 'lucide-react'
+import { FadeUp } from '@/lib/animations'
 
 export default function UploadPage() {
   const { studentId } = useAuth()
@@ -42,6 +43,7 @@ export default function UploadPage() {
 
   return (
     <div>
+      <FadeUp>
       <div className="mb-8">
         <h1 className="font-display text-3xl text-text">Upload</h1>
         <p className="text-sm text-muted mt-1">Notes are extracted and logged into your academic memory</p>
@@ -108,6 +110,7 @@ export default function UploadPage() {
           )}
         </div>
       )}
+      </FadeUp>
     </div>
   )
 }

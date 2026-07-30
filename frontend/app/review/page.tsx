@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import { useAuth } from '@/lib/auth'
 import { getReviewDue, markReviewed } from '@/lib/mcp'
 import { cn, timeAgo, formatDate } from '@/lib/utils'
 import { CheckCircle2, RotateCcw } from 'lucide-react'
+import { FadeUp } from '@/lib/animations'
 
 export default function ReviewPage() {
   const { studentId } = useAuth()
@@ -58,6 +60,7 @@ export default function ReviewPage() {
 
   return (
     <div>
+      <FadeUp>
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="font-display text-3xl text-text">Review</h1>
@@ -116,6 +119,7 @@ export default function ReviewPage() {
           </div>
         </>
       )}
+      </FadeUp>
     </div>
   )
 }

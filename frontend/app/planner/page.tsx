@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import { useAuth } from '@/lib/auth'
 import { getDeadlineTimeline, suggestReviewPlan, flagAtRiskTopics, listCourses } from '@/lib/mcp'
 import { cn } from '@/lib/utils'
 import { AlertCircle } from 'lucide-react'
+import { FadeUp } from '@/lib/animations'
 
 export default function PlannerPage() {
   const { studentId } = useAuth()
@@ -42,6 +44,7 @@ export default function PlannerPage() {
 
   return (
     <div>
+      <FadeUp>
       <div className="mb-8">
         <h1 className="font-display text-3xl text-text">Planner</h1>
         <p className="text-sm text-muted mt-1">
@@ -117,6 +120,7 @@ export default function PlannerPage() {
           </section>
         </div>
       </div>
+      </FadeUp>
     </div>
   )
 }

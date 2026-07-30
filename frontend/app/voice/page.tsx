@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/lib/auth'
 import { startVoiceSession, endVoiceSession, processVoiceInput } from '@/lib/mcp'
 import { Mic, Square, Send } from 'lucide-react'
+import { FadeUp } from '@/lib/animations'
 import { cn } from '@/lib/utils'
 
 type TranscriptEntry = { role: string; text: string; timestamp: string }
@@ -58,6 +59,7 @@ export default function VoicePage() {
 
   return (
     <div>
+      <FadeUp>
       <div className="mb-8">
         <h1 className="font-display text-3xl text-text">Voice Assistant</h1>
         <p className="text-sm text-muted mt-1">
@@ -107,6 +109,7 @@ export default function VoicePage() {
           </div>
         </div>
       )}
+    </FadeUp>
     </div>
   )
 }

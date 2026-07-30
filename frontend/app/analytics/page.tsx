@@ -5,6 +5,7 @@ import { useAuth } from '@/lib/auth'
 import { getProgressSummary, getMasteryHeatmap } from '@/lib/mcp'
 import { cn } from '@/lib/utils'
 import { Brain, Clock, BookOpen, Target } from 'lucide-react'
+import { FadeUp } from '@/lib/animations'
 
 export default function AnalyticsPage() {
   const { studentId } = useAuth()
@@ -52,6 +53,7 @@ export default function AnalyticsPage() {
 
   return (
     <div>
+      <FadeUp>
       <div className="mb-8">
         <h1 className="font-display text-3xl text-text">Analytics</h1>
         <p className="text-sm text-muted mt-1">Last {progress.periodDays} days</p>
@@ -146,6 +148,8 @@ export default function AnalyticsPage() {
           ))}
         </div>
       </div>
+      </FadeUp>
     </div>
   )
 }
+

@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '@/lib/auth'
 import { askQuestion, logTopic, recallTopic, getReviewDue, listCourses } from '@/lib/mcp'
 import { timeAgo } from '@/lib/utils'
 import { Send, Bot } from 'lucide-react'
+import { FadeUp } from '@/lib/animations'
 
 interface Message {
   id: string
@@ -91,16 +93,24 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
-      <div className="flex items-center justify-between pb-4 border-b border-divider mb-4">
-        <div>
-          <h1 className="font-display text-2xl text-text">Chat</h1>
-          <p className="text-sm text-muted">AI assistant with memory context</p>
+      <FadeUp>
+        <div className="flex items-center justify-between pb-4 border-b border-divider mb-4">
+          <div>
+            <h1 className="font-display text-2xl text-text">Chat</h1>
+            <p className="text-sm text-muted">AI assistant with memory context</p>
+          </div>
         </div>
-      </div>
+      </FadeUp>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-4 pb-4">
+        <AnimatePresence initial={false}>
         {messages.map((msg) => (
-          <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+          <motion.div
+            key={msg.id}
+            initial={{ opacity: 0, y: 12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[70%] ${msg.role === 'user' ? 'text-right' : ''}`}>
               <div className={msg.role === 'user'
                 ? 'bg-accent text-inverse px-4 py-2.5 rounded-2xl rounded-br-md text-sm leading-relaxed'
@@ -112,8 +122,9 @@ export default function ChatPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
+        </AnimatePresence>
         {isLoading && (
           <div className="flex justify-start">
             <div className="text-text px-4 py-2.5 text-sm">

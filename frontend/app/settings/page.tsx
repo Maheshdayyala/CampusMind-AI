@@ -3,6 +3,7 @@
 import { useTheme } from '@/lib/theme'
 import { useAuth } from '@/lib/auth'
 import { Sun, Moon, Monitor, User, LogOut } from 'lucide-react'
+import { FadeUp } from '@/lib/animations'
 import { cn } from '@/lib/utils'
 
 export default function SettingsPage() {
@@ -11,6 +12,7 @@ export default function SettingsPage() {
 
   return (
     <div>
+      <FadeUp>
       <h1 className="font-display text-3xl text-text mb-8">Settings</h1>
 
       <div className="max-w-lg space-y-8">
@@ -61,6 +63,7 @@ export default function SettingsPage() {
           </div>
         </section>
       </div>
+      </FadeUp>
     </div>
   )
 }

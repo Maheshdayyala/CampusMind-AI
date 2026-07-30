@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth'
 import { listCourses, getProgressSummary, flagAtRiskTopics, type CourseInfo, type ProgressSummary, type FlagAtRiskResult } from '@/lib/mcp'
 import { BookOpen, AlertTriangle, TrendingUp, ArrowRight } from 'lucide-react'
+import { FadeUp } from '@/lib/animations'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
@@ -46,6 +47,7 @@ export default function FacultyPage() {
 
   return (
     <div>
+      <FadeUp>
       <div className="mb-8">
         <div className="text-xs text-accent uppercase tracking-wider mb-1">Faculty Dashboard</div>
         <h1 className="font-display text-3xl text-text">Course Overview</h1>
@@ -125,6 +127,7 @@ export default function FacultyPage() {
           </div>
         </div>
       )}
+      </FadeUp>
     </div>
   )
 }

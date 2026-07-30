@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { mcpDev, getSessionId, getJwtToken, ENDPOINT, mcpRequest, initialize } from '@/lib/mcp'
 import { cn } from '@/lib/utils'
+import { FadeUp } from '@/lib/animations'
 
 export default function DeveloperPage() {
   const [tools, setTools] = useState<any[] | null>(null)
@@ -39,6 +40,7 @@ export default function DeveloperPage() {
 
   return (
     <div>
+      <FadeUp>
       <div className="mb-8">
         <div className="text-xs text-accent uppercase tracking-wider mb-1">Developer Panel</div>
         <h1 className="font-display text-3xl text-text">MCP Diagnostics</h1>
@@ -131,6 +133,7 @@ export default function DeveloperPage() {
           )}
         </div>
       </div>
+      </FadeUp>
     </div>
   )
 }
