@@ -10,11 +10,4 @@ export class JwtGuard implements Guard {
     return true;
   }
 
-  verifyStudentAccess(context: ExecutionContext, studentId: string): boolean {
-    const auth = context.auth;
-    if (!auth || !auth.subject) {
-      return false;
-    }
-    return auth.subject === studentId;
-  }
 }

@@ -267,8 +267,8 @@ export async function startVoiceSession(studentId: string): Promise<VoiceSession
 }
 
 export interface ProcessVoiceResult { ok: boolean; text: string; response: string; sessionId: string }
-export async function processVoiceInput(studentId: string, sessionId: string, audioData: string, mimeType?: string): Promise<ProcessVoiceResult> {
-  return callTool<ProcessVoiceResult>('process_voice_input', { studentId, sessionId, audioData, mimeType })
+export async function processVoiceInput(studentId: string, sessionId: string, transcript: string): Promise<ProcessVoiceResult> {
+  return callTool<ProcessVoiceResult>('process_voice_input', { studentId, sessionId, transcript, audioDurationSeconds: 0 })
 }
 
 export interface EndVoiceSessionResult { ok: boolean; sessionId: string; duration: number; transcript: { role: string; text: string; timestamp: string }[]; summary: string }

@@ -47,7 +47,7 @@ export default function VoicePage() {
     setTranscript(p => [...p, { role: 'user', text, timestamp: new Date().toISOString() }])
     setLoading(true)
     try {
-      const res = await processVoiceInput(studentId, sessionId, btoa(text), 'text/plain')
+      const res = await processVoiceInput(studentId, sessionId, text)
       setTranscript(p => [...p, { role: 'assistant', text: res.response || res.text, timestamp: new Date().toISOString() }])
     } catch (e: any) {
       setTranscript(p => [...p, { role: 'assistant', text: `Error: ${e.message}`, timestamp: new Date().toISOString() }])

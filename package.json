@@ -19,7 +19,6 @@
     "frontend:start": "npm start"
   },
   "dependencies": {
-    "@modelcontextprotocol/ext-apps": ">=0.1.0",
     "@nitrostack/core": "^1.0.13",
     "clsx": "^2.1.0",
     "dotenv": "^16.3.1",
