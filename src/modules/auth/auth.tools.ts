@@ -2,6 +2,13 @@ import { ToolDecorator as Tool, z, ExecutionContext, Injectable } from '@nitrost
 import { createHash } from 'crypto';
 import { DatabaseService } from '../../common/services/database.service.js';
 
+function base64url(s: string) { return Buffer.from(s).toString('base64url') }
+function demoJwt(sub: string) {
+  const header = base64url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }))
+  const payload = base64url(JSON.stringify({ sub }))
+  return `${header}.${payload}.demo`
+}
+
 @Injectable({ deps: [DatabaseService] })
 export class AuthTools {
   constructor(private db: DatabaseService) {}
@@ -26,7 +33,7 @@ export class AuthTools {
     }
     return {
       ok: true,
-      token: `demo-jwt-${student.id}`,
+      token: demoJwt(student.id),
       student: {
         id: student.id,
         name: student.name,

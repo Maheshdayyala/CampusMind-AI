@@ -154,7 +154,32 @@
       "timesWrong": 2
     }
   ],
-  "interactions": [],
+  "interactions": [
+    {
+      "id": 1,
+      "studentId": "s1",
+      "timestamp": "2026-07-30T15:54:03.094Z",
+      "type": "daily_briefing",
+      "summary": "Daily briefing delivered",
+      "channel": "text",
+      "transcript": "",
+      "audioDurationSeconds": 0,
+      "intent": "",
+      "responseMode": "text"
+    },
+    {
+      "id": 2,
+      "studentId": "s1",
+      "timestamp": "2026-07-30T15:54:03.268Z",
+      "type": "daily_briefing",
+      "summary": "Daily briefing delivered",
+      "channel": "text",
+      "transcript": "",
+      "audioDurationSeconds": 0,
+      "intent": "",
+      "responseMode": "text"
+    }
+  ],
   "assignments": [
     {
       "id": 1,

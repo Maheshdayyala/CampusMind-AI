@@ -10,6 +10,12 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 import { ToolDecorator as Tool, z, Injectable } from '@nitrostack/core';
 import { createHash } from 'crypto';
 import { DatabaseService } from '../../common/services/database.service.js';
+function base64url(s) { return Buffer.from(s).toString('base64url'); }
+function demoJwt(sub) {
+    const header = base64url(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+    const payload = base64url(JSON.stringify({ sub }));
+    return `${header}.${payload}.demo`;
+}
 let AuthTools = class AuthTools {
     db;
     constructor(db) {
@@ -27,7 +33,7 @@ let AuthTools = class AuthTools {
         }
         return {
             ok: true,
-            token: `demo-jwt-${student.id}`,
+            token: demoJwt(student.id),
             student: {
                 id: student.id,
                 name: student.name,

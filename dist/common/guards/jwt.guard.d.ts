@@ -1,5 +1,5 @@
-import { ExecutionContext, Guard } from '@nitrostack/core';
+import { Guard } from '@nitrostack/core';
 export declare class JwtGuard implements Guard {
-    canActivate(context: ExecutionContext): Promise<boolean>;
+    canActivate(): Promise<boolean>;
 }
 //# sourceMappingURL=jwt.guard.d.ts.map
