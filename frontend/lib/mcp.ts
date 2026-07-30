@@ -64,12 +64,13 @@ function track<T>(label: string, payload: unknown, fn: () => Promise<T>): Promis
 
 let rpcId = 1
 async function jsonRpc(method: string, params?: unknown) {
+  const requestId = rpcId++
   const token = getJwt()
   const headers: Record<string, string> = { 'Content-Type': 'application/json' }
   if (token) headers['Authorization'] = `Bearer ${token}`
   if (sessionId) headers['Mcp-Session-Id'] = sessionId
 
-  const body = { jsonrpc: '2.0', id: rpcId++, method, params }
+  const body = { jsonrpc: '2.0', id: requestId, method, params }
   const res = await fetch(ENDPOINT, { method: 'POST', headers: { ...headers, 'Accept': 'application/json, text/event-stream' }, body: JSON.stringify(body) })
 
   const sid = res.headers.get('mcp-session-id')
@@ -78,11 +79,20 @@ async function jsonRpc(method: string, params?: unknown) {
   const text = await res.text()
 
   if (text.startsWith('event:')) {
-    const dataLine = text.split('\n').find(l => l.startsWith('data:'))
-    if (!dataLine) throw new Error('No data in SSE response')
-    const json = JSON.parse(dataLine.slice(5).trim())
-    if (json.error) throw new Error(json.error.message || 'MCP error')
-    return json.result
+    const blocks = text.split('\n\n')
+    for (const block of blocks) {
+      const dataLine = block.split('\n').find(l => l.startsWith('data:'))
+      if (!dataLine) continue
+      try {
+        const json = JSON.parse(dataLine.slice(5).trim())
+        if (json.id !== undefined && json.id !== requestId) continue
+        if (json.error) throw new Error(json.error.message || 'MCP error')
+        if (json.result !== undefined) return json.result
+      } catch {
+        continue
+      }
+    }
+    throw new Error(`No matching response in SSE stream for request ${requestId}. Raw:\n${text.slice(0, 500)}`)
   }
 
   const json = JSON.parse(text)
