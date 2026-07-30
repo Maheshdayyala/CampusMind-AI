@@ -13,6 +13,7 @@ const DEMO_ACCOUNTS: Record<string, { id: string; name: string; program: string 
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -164,8 +165,8 @@ export default function LoginPage() {
                   <input
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Enter your password"
-                    value={''}
-                    onChange={() => {}}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="w-full border-0 bg-transparent outline-none text-sm text-[#28251d] placeholder:text-[#a8a59d]"
                     required
                     autoComplete="current-password"
