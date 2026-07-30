@@ -46,6 +46,7 @@ export default function LoginPage() {
 
     let animId: number
     function draw() {
+      if (!ctx) return
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       for (const p of particles) {
         p.x += p.vx
