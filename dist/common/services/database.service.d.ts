@@ -1,5 +1,7 @@
 export interface StudentRow {
     id: string;
+    email: string;
+    passwordHash: string;
     name: string;
     program: string;
     year: number;
@@ -75,6 +77,7 @@ export declare class DatabaseService {
     private seed;
     getDb(): PersistenceState;
     getStudent(id: string): StudentRow | undefined;
+    getStudentByEmail(email: string): StudentRow | undefined;
     getCourse(id: string): CourseRow | undefined;
     getStudentCourses(studentId: string): CourseRow[];
     getCourseConcepts(courseId: string): ConceptRow[];

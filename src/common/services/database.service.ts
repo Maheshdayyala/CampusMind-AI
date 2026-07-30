@@ -140,8 +140,8 @@ export class DatabaseService {
 
     // ponytail: SHA-256 for demo passwords; upgrade to bcrypt/scrypt for production
     const students: StudentRow[] = [
-      { id: 's1', email: 'aisha@university.edu', passwordHash: 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f8c0e2fe9d9b0', name: 'Aisha', program: 'BSc Computer Science', year: 2, goals: 'Master DSA, prepare for internships' },
-      { id: 's2', email: 'rohan@university.edu', passwordHash: 'ba5a1e53c1b7b3a0a7f0e5a0c8c9e5b5f4a3e2d1c0b9a8f7e6d5c4b3a2a1b0c', name: 'Rohan', program: 'BSc Physics', year: 1, goals: 'Build strong foundations in mechanics' },
+      { id: 's1', email: 'aisha@university.edu', passwordHash: 'ef92b778bafe771e89245b89ecbc08a44a4e166c06659911881f383d4473e94f', name: 'Aisha', program: 'BSc Computer Science', year: 2, goals: 'Master DSA, prepare for internships' },
+      { id: 's2', email: 'rohan@university.edu', passwordHash: '1d4598d1949b47f7f211134b639ec32238ce73086a83c2f745713b3f12f817e5', name: 'Rohan', program: 'BSc Physics', year: 1, goals: 'Build strong foundations in mechanics' },
     ];
 
     const courses: CourseRow[] = [

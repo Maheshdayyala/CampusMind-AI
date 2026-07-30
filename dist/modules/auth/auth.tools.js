@@ -8,6 +8,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { ToolDecorator as Tool, z, Injectable } from '@nitrostack/core';
+import { createHash } from 'crypto';
 import { DatabaseService } from '../../common/services/database.service.js';
 let AuthTools = class AuthTools {
     db;
@@ -15,9 +16,14 @@ let AuthTools = class AuthTools {
         this.db = db;
     }
     async login(input, ctx) {
-        const student = this.db.getStudent(input.studentId);
+        const student = this.db.getStudentByEmail(input.email);
         if (!student) {
-            return { ok: false, message: `No student found with id "${input.studentId}".` };
+            return { ok: false, message: 'No account found with that email.' };
+        }
+        // ponytail: SHA-256 for demo; upgrade to bcrypt/scrypt for production
+        const hash = createHash('sha256').update(input.password).digest('hex');
+        if (hash !== student.passwordHash) {
+            return { ok: false, message: 'Invalid password.' };
         }
         return {
             ok: true,
@@ -28,16 +34,17 @@ let AuthTools = class AuthTools {
                 program: student.program,
                 year: student.year,
             },
-            message: `Logged in as ${student.name}. You can now use all tools with studentId "${student.id}".`,
+            message: `Logged in as ${student.name}.`,
         };
     }
 };
 __decorate([
     Tool({
         name: 'login',
-        description: 'Authenticate as a student. Returns a session token for subsequent requests. Use student ID "s1" (Aisha) or "s2" (Rohan) for demo.',
+        description: 'Authenticate with email and password. Returns a session token for subsequent requests.',
         inputSchema: z.object({
-            studentId: z.string().describe('The student ID to authenticate as'),
+            email: z.string().describe('Student email address'),
+            password: z.string().describe('Account password'),
         }),
     }),
     __metadata("design:type", Function),

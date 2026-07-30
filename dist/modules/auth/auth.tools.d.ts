@@ -4,7 +4,8 @@ export declare class AuthTools {
     private db;
     constructor(db: DatabaseService);
     login(input: {
-        studentId: string;
+        email: string;
+        password: string;
     }, ctx: ExecutionContext): Promise<{
         ok: boolean;
         message: string;

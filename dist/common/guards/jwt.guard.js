@@ -13,13 +13,6 @@ let JwtGuard = class JwtGuard {
         }
         return true;
     }
-    verifyStudentAccess(context, studentId) {
-        const auth = context.auth;
-        if (!auth || !auth.subject) {
-            return false;
-        }
-        return auth.subject === studentId;
-    }
 };
 JwtGuard = __decorate([
     Injectable()
