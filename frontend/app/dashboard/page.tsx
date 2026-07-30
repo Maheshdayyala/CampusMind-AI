@@ -8,7 +8,7 @@ import { useAuth } from '@/lib/auth'
 import { getDailyBriefing, getProgressSummary, getReviewDue, type DailyBriefing, type ProgressSummary, type ReviewDueItem } from '@/lib/mcp'
 import { cn } from '@/lib/utils'
 import {
-  TrendingUp, Brain, AlertTriangle, Clock, Calendar, FileText, Zap, ArrowRight, BookOpen, Flame, Trophy, BarChart3,
+  TrendingUp, Brain, AlertTriangle, Clock, Calendar, FileText, Zap, ArrowRight, BookOpen, Flame, Trophy, BarChart3, Sparkles,
 } from 'lucide-react'
 
 type WeakTopic = { name: string; confidence: number }
@@ -81,14 +81,14 @@ export default function DashboardPage() {
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <MetricCard icon={Flame} label="Study Streak" value={`${overview.studyStreak} days`} sub="Keep it going!" color="from-orange-500/20 to-orange-600/10" iconColor="text-orange-400" />
-        <MetricCard icon={Brain} label="Avg Confidence" value={`${progress.overview.averageConfidence}%`} sub={`${progress.overview.weakTopicsCount} weak areas`} color="from-[#1a73e8]/20 to-[#0d47a1]/10" iconColor="text-[var(--accent-light)]" />
+        <MetricCard icon={Brain} label="Avg Confidence" value={`${progress.overview.averageConfidence}%`} sub={`${progress.overview.weakTopicsCount} weak areas`} color="from-[#01696f]/20 to-[#0c4e54]/10" iconColor="text-primary" />
         <MetricCard icon={AlertTriangle} label="Review Due" value={`${reviewDue.length} topics`} sub="Spaced repetition" color="from-amber-500/20 to-amber-600/10" iconColor="text-amber-400" />
         <MetricCard icon={Trophy} label="Active Courses" value={`${overview.enrolledCourses}`} sub={`${progress.overview.totalInteractions} interactions`} color="from-emerald-500/20 to-emerald-600/10" iconColor="text-emerald-400" />
       </motion.div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <GlassCard glow delay={0.1}>
+          <GlassCard glow>
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-display font-bold text-lg">Weak Topics</h2>
               <Link href="/review" className="text-sm text-[var(--accent-light)] hover:underline flex items-center gap-1">
@@ -113,7 +113,7 @@ export default function DashboardPage() {
             </div>
           </GlassCard>
 
-          <GlassCard glow delay={0.15}>
+          <GlassCard glow>
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-display font-bold text-lg">Upcoming Deadlines</h2>
               <Link href="/analytics" className="text-sm text-[var(--accent-light)] hover:underline flex items-center gap-1">
@@ -145,7 +145,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="space-y-6">
-          <GlassCard glow delay={0.2}>
+          <GlassCard glow>
             <h2 className="font-display font-bold text-lg mb-4">Assignments</h2>
             <div className="space-y-3">
               {assignments.length === 0 ? (
@@ -169,27 +169,28 @@ export default function DashboardPage() {
             </Link>
           </GlassCard>
 
-          <GlassCard glow delay={0.25}>
-            <h2 className="font-display font-bold text-lg mb-2">Quick Actions</h2>
-            <p className="text-xs text-[var(--text-muted)] mb-4">Common tasks to keep you on track</p>
-            <div className="space-y-2">
-              <Link href="/chat" className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-[var(--border-primary)] text-sm hover:bg-white/[0.06] transition-colors">
-                <Brain className="w-4 h-4 text-[var(--accent-light)]" />
-                Log today&apos;s study
-              </Link>
-              <Link href="/review" className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-[var(--border-primary)] text-sm hover:bg-white/[0.06] transition-colors">
-                <Clock className="w-4 h-4 text-amber-400" />
-                Review weak topics
-              </Link>
-              <Link href="/exam-mode" className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-[var(--border-primary)] text-sm hover:bg-white/[0.06] transition-colors">
-                <Zap className="w-4 h-4 text-purple-400" />
-                Exam mode
-              </Link>
-              <Link href="/upload" className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-[var(--border-primary)] text-sm hover:bg-white/[0.06] transition-colors">
-                <FileText className="w-4 h-4 text-emerald-400" />
-                Upload notes
-              </Link>
-            </div>
+          <GlassCard glow className="card-hero">
+            <div className="eyebrow"><Sparkles className="w-3.5 h-3.5" />AI Focus</div>
+            <h2 className="font-display font-bold text-lg mb-2">
+              {weakTopics[0]
+                ? `${weakTopics[0].name} needs attention`
+                : 'All caught up'}
+            </h2>
+            <p className="text-sm text-[var(--text-secondary)] mb-4 leading-relaxed">
+              {(() => {
+                const topic = weakTopics[0]
+                if (!topic) return 'No weak topics detected. Keep studying!'
+                const reviewItem = reviewDue.find(r => r.conceptName === topic.name)
+                if (reviewItem) {
+                  return `Flagged because you last reviewed ${topic.name} ${reviewItem.daysSinceReview > 1 ? `${reviewItem.daysSinceReview} days ago` : 'yesterday'} and your confidence dropped to ${Math.round(topic.confidence * 100)}%.`
+                }
+                return `${topic.name} confidence is at ${Math.round(topic.confidence * 100)}% — below the retention threshold. A quick review would solidify it.`
+              })()}
+            </p>
+            <Link href="/review" className="btn-primary text-sm !py-2 !px-4 self-start">
+              <Clock className="w-4 h-4" />
+              {reviewDue.length > 0 ? `Review ${reviewDue.length} topic${reviewDue.length > 1 ? 's' : ''}` : 'Go to Review Center'}
+            </Link>
           </GlassCard>
         </div>
       </div>

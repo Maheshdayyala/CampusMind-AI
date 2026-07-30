@@ -1,13 +1,22 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/lib/auth'
+import { getReviewDue } from '@/lib/mcp'
 import {
   LayoutDashboard, Brain, MessageSquare, Clock, BookOpen,
   Calendar, Upload, BarChart3, Settings, GraduationCap,
   ChevronLeft, Zap, Bug, Mic, Users,
 } from 'lucide-react'
+
+const badgeRoutes: Record<string, string> = {
+  '/review': 'due',
+  '/memory': '',
+  '/chat': '',
+}
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -31,6 +40,22 @@ interface SidebarProps {
 
 export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const pathname = usePathname()
+  const { studentId } = useAuth()
+  const [reviewCount, setReviewCount] = useState<number | null>(null)
+  const [memoryCount, setMemoryCount] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!studentId) return
+    getReviewDue(studentId, 3).then(r => setReviewCount(r.count)).catch(() => {})
+  }, [studentId])
+
+  function renderBadge(itemHref: string) {
+    if (collapsed) return null
+    if (itemHref === '/review' && reviewCount !== null && reviewCount > 0) {
+      return <span className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary-highlight text-primary min-w-[18px] text-center">{reviewCount}</span>
+    }
+    return null
+  }
 
   return (
     <aside
@@ -79,6 +104,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
             >
               <Icon className={cn('w-[18px] h-[18px] shrink-0')} />
               {!collapsed && <span>{item.label}</span>}
+              {renderBadge(item.href)}
               {collapsed && (
                 <div className="absolute left-full ml-2 px-2.5 py-1 rounded-lg bg-surface border border-border text-xs text-text opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 pointer-events-none shadow-sm">
                   {item.label}

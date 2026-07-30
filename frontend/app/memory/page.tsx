@@ -156,7 +156,7 @@ export default function MemoryPage() {
           {subjects.map(s => (
             <button key={s} onClick={() => setSelectedSubject(s)}
               className={cn('px-3 py-2 rounded-xl text-sm whitespace-nowrap transition-all border',
-                selectedSubject === s ? 'bg-[#1a73e8]/20 text-[var(--accent-light)] border-[var(--border-glow)]' : 'glass text-[var(--text-secondary)] border-[var(--border-primary)] hover:text-[var(--text-primary)]')}>
+                                  selectedSubject === s ? 'bg-primary-highlight text-primary border-[var(--border-glow)]' : 'glass text-[var(--text-secondary)] border-[var(--border-primary)] hover:text-[var(--text-primary)]')}>
               {s === 'all' ? 'All' : s}
             </button>
           ))}
@@ -174,7 +174,7 @@ export default function MemoryPage() {
           <motion.div key={entry.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: i * 0.02, ease: [0.16, 1, 0.3, 1] }}
             className="glass-card p-4 group">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1a73e8]/20 to-[#0d47a1]/10 border border-[var(--border-primary)] flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#01696f]/20 to-[#0c4e54]/10 border border-[var(--border-primary)] flex items-center justify-center shrink-0">
                 <BookOpen className="w-5 h-5 text-[var(--accent-light)]" />
               </div>
               <div className="flex-1 min-w-0">

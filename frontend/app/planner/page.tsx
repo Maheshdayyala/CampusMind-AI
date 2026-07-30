@@ -78,9 +78,9 @@ export default function PlannerPage() {
               ) : todaySchedule.map((session, i) => (
                 <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
                   className={cn('flex items-center gap-4 p-3 rounded-xl border transition-all',
-                    session.type === 'study' ? 'bg-[#1a73e8]/5 border-[var(--border-primary)]' : 'bg-amber-500/5 border-amber-500/10')}>
+                    session.type === 'study' ? 'bg-primary-highlight/40 border-[var(--border-primary)]' : 'bg-amber-500/5 border-amber-500/10')}>
                   <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold',
-                    session.type === 'study' ? 'bg-[#1a73e8]/20 text-[var(--accent-light)]' : 'bg-amber-500/20 text-amber-400')}>
+                    session.type === 'study' ? 'bg-primary-highlight text-primary' : 'bg-amber-500/20 text-amber-400')}>
                     {session.time}
                   </div>
                   <div className="flex-1">

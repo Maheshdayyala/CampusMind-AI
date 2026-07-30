@@ -107,7 +107,7 @@ export default function ChatPage() {
     <div className="h-screen flex flex-col max-w-5xl mx-auto">
       <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-primary)]">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1a73e8]/20 to-[#0d47a1]/10 border border-[var(--border-primary)] flex items-center justify-center">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#01696f]/20 to-[#0c4e54]/10 border border-[var(--border-primary)] flex items-center justify-center">
             <Bot className="w-5 h-5 text-[var(--accent-light)]" />
           </div>
           <div>
@@ -126,10 +126,10 @@ export default function ChatPage() {
           {messages.map((msg) => (
             <motion.div key={msg.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               className={cn('flex gap-3 max-w-[85%]', msg.role === 'user' ? 'ml-auto flex-row-reverse' : '')}>
-              <div className={cn('w-8 h-8 rounded-xl flex items-center justify-center shrink-0', msg.role === 'user' ? 'bg-gradient-to-br from-[#1a73e8] to-[#0d47a1]' : 'bg-white/[0.06] border border-[var(--border-primary)]')}>
+              <div className={cn('w-8 h-8 rounded-xl flex items-center justify-center shrink-0', msg.role === 'user' ? 'bg-gradient-to-br from-[#01696f] to-[#0c4e54]' : 'bg-white/[0.06] border border-[var(--border-primary)]')}>
                 {msg.role === 'user' ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-[var(--accent-light)]" />}
               </div>
-              <div className={cn('rounded-2xl px-4 py-3 text-sm leading-relaxed', msg.role === 'user' ? 'bg-gradient-to-br from-[#1a73e8] to-[#0d47a1] text-white' : 'glass-card')}>
+              <div className={cn('rounded-2xl px-4 py-3 text-sm leading-relaxed', msg.role === 'user' ? 'bg-gradient-to-br from-[#01696f] to-[#0c4e54] text-white' : 'glass-card')}>
                 <div className="whitespace-pre-wrap">{msg.content}</div>
                 <div className={cn('text-[10px] mt-2', msg.role === 'user' ? 'text-white/50' : 'text-[var(--text-muted)]')}>
                   {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

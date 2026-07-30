@@ -94,9 +94,9 @@ export default function UploadPage() {
             <div onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}
               onClick={() => inputRef.current?.click()}
               className={cn('relative border-2 border-dashed rounded-2xl p-16 text-center cursor-pointer transition-all duration-300',
-                dragActive ? 'border-[var(--accent)] bg-[#1a73e8]/5' : 'border-[var(--border-primary)] hover:border-[var(--border-glow)] hover:bg-white/[0.02]')}>
+                dragActive ? 'border-[var(--accent)] bg-primary-highlight/40' : 'border-[var(--border-primary)] hover:border-[var(--border-glow)] hover:bg-white/[0.02]')}>
               <input ref={inputRef} type="file" multiple accept=".pdf,.docx,.txt,.md,.pptx,.png,.jpg,.jpeg" onChange={handleFileSelect} className="hidden" />
-              <div className={cn('w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all', dragActive ? 'bg-[#1a73e8]/20 scale-110' : 'bg-white/[0.04]')}>
+              <div className={cn('w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 transition-all', dragActive ? 'bg-primary-highlight scale-110' : 'bg-white/[0.04]')}>
                 <Upload className={cn('w-8 h-8 transition-colors', dragActive ? 'text-[var(--accent-light)]' : 'text-[var(--text-muted)]')} />
               </div>
               <h3 className="font-display text-lg font-bold mb-1">{dragActive ? 'Drop your files here' : 'Drag & drop your notes'}</h3>

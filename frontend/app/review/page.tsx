@@ -78,7 +78,7 @@ export default function ReviewPage() {
           {[1, 3, 7, 14].map(d => (
             <button key={d} onClick={() => setDaysThreshold(d)}
               className={cn('px-3 py-1.5 rounded-lg text-xs font-medium transition-all border',
-                daysThreshold === d ? 'bg-[#1a73e8]/20 text-[var(--accent-light)] border-[var(--border-glow)]' : 'glass text-[var(--text-secondary)] border-[var(--border-primary)]')}>
+                daysThreshold === d ? 'bg-primary-highlight text-primary border-[var(--border-glow)]' : 'glass text-[var(--text-secondary)] border-[var(--border-primary)]')}>
               {d}d
             </button>
           ))}

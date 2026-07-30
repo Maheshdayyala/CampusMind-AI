@@ -61,7 +61,7 @@ export default function LandingPage() {
       <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-[var(--border-primary)]">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#1a73e8] to-[#0d47a1] flex items-center justify-center shadow-glow">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#01696f] to-[#0c4e54] flex items-center justify-center shadow-glow">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
             <span className="font-display font-bold text-lg text-[var(--text-primary)]">CampusMind</span>
@@ -76,8 +76,8 @@ export default function LandingPage() {
       {/* Hero */}
       <section ref={ref} className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
         <motion.div style={{ opacity, scale }} className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-[#1a73e8]/10 rounded-full blur-[120px]" />
-          <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#0d47a1]/10 rounded-full blur-[100px]" />
+          <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-[#01696f]/10 rounded-full blur-[120px]" />
+          <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-[#0c4e54]/10 rounded-full blur-[100px]" />
         </motion.div>
 
         <div className="relative z-10 max-w-6xl mx-auto px-6 text-center">
@@ -178,7 +178,7 @@ export default function LandingPage() {
               const Icon = f.icon
               return (
                 <motion.div key={i} variants={item} className="glass-card p-6 group">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1a73e8]/20 to-[#0d47a1]/10 border border-[var(--border-primary)] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#01696f]/20 to-[#0c4e54]/10 border border-[var(--border-primary)] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
                     <Icon className="w-5 h-5 text-[var(--accent-light)]" />
                   </div>
                   <h3 className="font-display font-bold text-lg mb-2">{f.title}</h3>
@@ -203,9 +203,9 @@ export default function LandingPage() {
           transition={{ duration: 0.6 }}
           className="glass-card-static max-w-3xl mx-auto text-center p-12 md:p-16 glow-border relative overflow-hidden"
         >
-          <div className="absolute -top-32 -right-32 w-64 h-64 bg-[#1a73e8]/10 rounded-full blur-[80px]" />
+          <div className="absolute -top-32 -right-32 w-64 h-64 bg-[#01696f]/10 rounded-full blur-[80px]" />
           <div className="relative z-[1]">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#1a73e8] to-[#0d47a1] flex items-center justify-center mx-auto mb-6 shadow-glow-lg">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#01696f] to-[#0c4e54] flex items-center justify-center mx-auto mb-6 shadow-glow-lg">
               <GraduationCap className="w-8 h-8 text-white" />
             </div>
             <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">

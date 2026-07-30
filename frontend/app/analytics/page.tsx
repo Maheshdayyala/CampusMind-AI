@@ -46,7 +46,7 @@ export default function AnalyticsPage() {
 
   const stats = [
     { icon: Flame, label: 'Study Sessions', value: `${overview.studySessionsCompleted}`, change: `in ${progress.periodDays} days`, color: 'from-orange-500/20 to-orange-600/10', iconColor: 'text-orange-400' },
-    { icon: Brain, label: 'Avg Confidence', value: `${overview.averageConfidence}%`, change: `across ${overview.totalConceptsTracked} concepts`, color: 'from-[#1a73e8]/20 to-[#0d47a1]/10', iconColor: 'text-[var(--accent-light)]' },
+    { icon: Brain, label: 'Avg Confidence', value: `${overview.averageConfidence}%`, change: `across ${overview.totalConceptsTracked} concepts`, color: 'from-[#01696f]/20 to-[#0c4e54]/10', iconColor: 'text-primary' },
     { icon: BookOpen, label: 'Total Interactions', value: `${overview.totalInteractions}`, change: '+ from study sessions', color: 'from-emerald-500/20 to-emerald-600/10', iconColor: 'text-emerald-400' },
     { icon: Target, label: 'Weak Topics', value: `${overview.weakTopicsCount}`, change: 'Need attention', color: 'from-amber-500/20 to-amber-600/10', iconColor: 'text-amber-400' },
   ]

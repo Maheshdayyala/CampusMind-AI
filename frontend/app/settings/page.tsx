@@ -5,29 +5,17 @@ import { motion } from 'framer-motion'
 import GlassCard from '@/components/GlassCard'
 import { cn } from '@/lib/utils'
 import {
-  Settings,
-  Bell,
-  Shield,
   Palette,
-  Globe,
   User,
-  ChevronRight,
   LogOut,
   Moon,
   Sun,
   Monitor,
-  Volume2,
-  MessageSquare,
 } from 'lucide-react'
 
 const sections = [
   { id: 'profile', label: 'Profile', icon: User },
   { id: 'appearance', label: 'Appearance', icon: Palette },
-  { id: 'notifications', label: 'Notifications', icon: Bell },
-  { id: 'privacy', label: 'Privacy & Security', icon: Shield },
-  { id: 'language', label: 'Language & Region', icon: Globe },
-  { id: 'voice', label: 'Voice Assistant', icon: Volume2 },
-  { id: 'ai', label: 'AI Preferences', icon: MessageSquare },
 ]
 
 export default function SettingsPage() {
@@ -53,7 +41,7 @@ export default function SettingsPage() {
                   className={cn(
                     'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all',
                     activeSection === s.id
-                      ? 'bg-[#1a73e8]/20 text-[var(--accent-light)] border border-[var(--border-glow)]'
+                      ? 'bg-primary-highlight text-primary border border-[var(--border-glow)]'
                       : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/[0.03]'
                   )}
                 >
@@ -90,7 +78,7 @@ export default function SettingsPage() {
                       className={cn(
                         'flex flex-col items-center gap-2 p-4 rounded-xl border transition-all',
                         theme === t.id
-                          ? 'bg-[#1a73e8]/20 border-[var(--border-glow)] text-[var(--accent-light)]'
+                          ? 'bg-primary-highlight border-[var(--border-glow)] text-primary'
                           : 'glass text-[var(--text-secondary)] border-[var(--border-primary)] hover:text-[var(--text-primary)]'
                       )}
                     >
@@ -129,7 +117,7 @@ export default function SettingsPage() {
                 <h2 className="font-display font-bold text-lg mb-1">Profile</h2>
                 <p className="text-sm text-[var(--text-secondary)] mb-6">Manage your account details</p>
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#1a73e8] to-[#0d47a1] flex items-center justify-center text-2xl font-bold text-white">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#01696f] to-[#0c4e54] flex items-center justify-center text-2xl font-bold text-white">
                     A
                   </div>
                   <div>
@@ -157,14 +145,11 @@ export default function SettingsPage() {
             </motion.div>
           )}
 
-          {(activeSection !== 'appearance' && activeSection !== 'profile') && (
+          {activeSection !== 'appearance' && activeSection !== 'profile' && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <GlassCard glow className="p-10 text-center">
-                <div className="w-12 h-12 rounded-xl bg-white/[0.04] border border-[var(--border-primary)] flex items-center justify-center mx-auto mb-4">
-                  {(() => { const Icon = sections.find(s => s.id === activeSection)?.icon || Settings; return <Icon className="w-6 h-6 text-[var(--text-muted)]" /> })()}
-                </div>
-                <h3 className="font-display font-bold text-lg mb-1">Coming soon</h3>
-                <p className="text-sm text-[var(--text-secondary)]">This section is under development</p>
+              <GlassCard glow className="p-6">
+                <h2 className="font-display font-bold text-lg mb-1">Settings</h2>
+                <p className="text-sm text-[var(--text-secondary)]">Select a section from the sidebar</p>
               </GlassCard>
             </motion.div>
           )}
@@ -178,7 +163,7 @@ function Toggle({ enabled }: { enabled: boolean }) {
   return (
     <div className={cn(
       'w-11 h-6 rounded-full p-0.5 transition-colors cursor-pointer',
-      enabled ? 'bg-[#1a73e8]' : 'bg-white/[0.1]'
+      enabled ? 'bg-primary' : 'bg-white/[0.1]'
     )}>
       <div className={cn(
         'w-5 h-5 rounded-full bg-white transition-transform',
