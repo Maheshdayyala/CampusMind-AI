@@ -78,6 +78,13 @@ async function jsonRpc(method: string, params?: unknown) {
 
   const text = await res.text()
 
+  function unwrap(r: unknown) {
+    if (r && typeof r === 'object' && 'content' in r && Array.isArray(r.content) && r.content[0]?.type === 'text') {
+      try { return JSON.parse(r.content[0].text) } catch {}
+    }
+    return r
+  }
+
   if (text.startsWith('event:')) {
     const blocks = text.split('\n\n')
     for (const block of blocks) {
@@ -87,7 +94,7 @@ async function jsonRpc(method: string, params?: unknown) {
         const json = JSON.parse(dataLine.slice(5).trim())
         if (json.id !== undefined && json.id !== requestId) continue
         if (json.error) throw new Error(json.error.message || 'MCP error')
-        if (json.result !== undefined) return json.result
+        if (json.result !== undefined) return unwrap(json.result)
       } catch {
         continue
       }
@@ -97,11 +104,7 @@ async function jsonRpc(method: string, params?: unknown) {
 
   const json = JSON.parse(text)
   if (json.error) throw new Error(json.error.message || 'MCP error')
-  const result = json.result
-  if (result && typeof result === 'object' && 'content' in result && Array.isArray(result.content) && result.content[0]?.type === 'text') {
-    try { return JSON.parse(result.content[0].text) } catch {}
-  }
-  return result
+  return unwrap(json.result)
 }
 
 export async function initialize() {
