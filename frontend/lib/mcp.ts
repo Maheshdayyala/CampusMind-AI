@@ -97,7 +97,11 @@ async function jsonRpc(method: string, params?: unknown) {
 
   const json = JSON.parse(text)
   if (json.error) throw new Error(json.error.message || 'MCP error')
-  return json.result
+  const result = json.result
+  if (result && typeof result === 'object' && 'content' in result && Array.isArray(result.content) && result.content[0]?.type === 'text') {
+    try { return JSON.parse(result.content[0].text) } catch {}
+  }
+  return result
 }
 
 export async function initialize() {

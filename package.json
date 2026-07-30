@@ -16,7 +16,8 @@
     "widget": "npm --prefix src/widgets",
     "frontend:dev": "next dev frontend",
     "frontend:build": "next build frontend",
-    "frontend:start": "npm start"
+    "frontend:start": "npm start",
+    "dev:all": "concurrently --kill-others \"npm start\" \"npm run frontend:dev\""
   },
   "dependencies": {
     "@nitrostack/core": "^1.0.13",
@@ -38,6 +39,7 @@
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.0",
+    "concurrently": "^10.0.4",
     "postcss": "^8.4.0",
     "tailwindcss": "^3.4.0",
     "typescript": "^5.3.3"
