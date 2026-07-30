@@ -1,12 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import GlassCard from '@/components/GlassCard'
 import { useAuth } from '@/lib/auth'
 import { getReviewDue, markReviewed } from '@/lib/mcp'
 import { cn, timeAgo, formatDate } from '@/lib/utils'
-import { Clock, CheckCircle2, RotateCcw, Brain, BookOpen, AlertTriangle, TrendingUp, ChevronRight, Sparkles } from 'lucide-react'
+import { CheckCircle2, RotateCcw } from 'lucide-react'
 
 export default function ReviewPage() {
   const { studentId } = useAuth()
@@ -44,115 +42,77 @@ export default function ReviewPage() {
   }
 
   const getScoreColor = (score?: number) => {
-    if (!score) return 'text-[var(--text-muted)]'
-    if (score >= 0.7) return 'text-emerald-400'
-    if (score >= 0.4) return 'text-amber-400'
-    return 'text-[var(--error)]'
+    if (!score) return 'text-muted'
+    if (score >= 0.7) return 'text-success'
+    if (score >= 0.4) return 'text-warning'
+    return 'text-error'
   }
 
-  const getScoreBg = (score?: number) => {
-    if (!score) return 'bg-white/[0.03]'
-    if (score >= 0.7) return 'bg-emerald-500/10'
-    if (score >= 0.4) return 'bg-amber-500/10'
-    return 'bg-red-500/10'
-  }
-
-  if (loading && items.length === 0) return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="skeleton h-9 w-48 mb-2" /><div className="skeleton h-5 w-64 mb-6" />
-      <div className="grid md:grid-cols-2 gap-4">{[...Array(4)].map((_, i) => (<div key={i} className="glass-card p-5"><div className="skeleton h-5 w-32 mb-2" /><div className="skeleton h-4 w-24 mb-3" /><div className="skeleton h-12 w-full mb-2" /><div className="skeleton h-9 w-28 mt-3" /></div>))}</div>
+  if (loading) return (
+    <div>
+      <div className="skeleton h-9 w-48 mb-2" />
+      <div className="skeleton h-5 w-64 mb-6" />
+      {[...Array(4)].map((_, i) => <div key={i} className="skeleton h-16 w-full mb-2" />)}
     </div>
   )
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div>
       <div className="flex items-start justify-between mb-8">
         <div>
-          <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="font-display text-3xl font-bold">Review Center</motion.h1>
-          <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="text-[var(--text-secondary)] text-sm mt-1">
-            Spaced repetition — review before you forget
-          </motion.p>
+          <h1 className="font-display text-3xl text-text">Review</h1>
+          <p className="text-sm text-muted mt-1">Spaced repetition — review before you forget</p>
         </div>
         <div className="flex items-center gap-2">
-          <label className="text-xs text-[var(--text-muted)]">Threshold:</label>
           {[1, 3, 7, 14].map(d => (
             <button key={d} onClick={() => setDaysThreshold(d)}
-              className={cn('px-3 py-1.5 rounded-lg text-xs font-medium transition-all border',
-                daysThreshold === d ? 'bg-primary-highlight text-primary border-[var(--border-glow)]' : 'glass text-[var(--text-secondary)] border-[var(--border-primary)]')}>
+              className={cn('btn btn-xs', daysThreshold === d ? 'btn-primary' : '')}>
               {d}d
             </button>
           ))}
         </div>
       </div>
 
-      {error && <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-[var(--error)]">{error}</div>}
+      {error && <div className="text-sm text-error mb-4">{error}</div>}
 
-      {items.length === 0 && !loading ? (
-        <div className="text-center py-24">
-          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
-            <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle2 className="w-8 h-8 text-emerald-400" />
-            </div>
-            <h2 className="font-display text-xl font-bold mb-2">All caught up!</h2>
-            <p className="text-[var(--text-secondary)] text-sm mb-6">No topics due for review in the last {daysThreshold} days</p>
-            <button onClick={() => setDaysThreshold(Math.max(1, daysThreshold - 1))} className="btn-secondary text-sm">
-              <RotateCcw className="w-4 h-4" />Try shorter threshold
-            </button>
-          </motion.div>
+      {items.length === 0 ? (
+        <div className="text-center py-20">
+          <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center mx-auto mb-3">
+            <CheckCircle2 className="w-5 h-5 text-success" />
+          </div>
+          <h2 className="font-display text-xl text-text mb-1">All caught up</h2>
+          <p className="text-sm text-muted mb-4">No topics due in the last {daysThreshold} days</p>
+          <button onClick={() => setDaysThreshold(Math.max(1, daysThreshold - 1))} className="btn btn-sm">
+            <RotateCcw className="w-3 h-3" /> Shorter threshold
+          </button>
         </div>
       ) : (
         <>
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-            className="glass-card-static p-5 mb-6 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-              <Clock className="w-5 h-5 text-amber-400" />
-            </div>
-            <div>
-              <div className="font-display font-bold text-lg">{items.length} topic{items.length !== 1 ? 's' : ''} due for review</div>
-              <p className="text-xs text-[var(--text-muted)]">Last reviewed more than {daysThreshold} days ago</p>
-            </div>
-          </motion.div>
+          <div className="mb-6 flex items-center gap-3 px-4 py-3 rounded-lg bg-accent/5 border border-accent/10">
+            <span className="text-sm text-accent font-medium">{items.length} topic{items.length !== 1 ? 's' : ''} due</span>
+            <span className="text-xs text-muted">last reviewed &gt;{daysThreshold}d ago</span>
+          </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
-            <AnimatePresence>
-              {items.map((item, i) => (
-                <motion.div key={item.conceptId} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ delay: i * 0.05 }}
-                  layout className="glass-card p-5">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className={cn('w-10 h-10 rounded-xl border flex items-center justify-center', getScoreBg(item.confidenceScore))}>
-                        <BookOpen className={cn('w-5 h-5', getScoreColor(item.confidenceScore))} />
-                      </div>
-                      <div>
-                        <h3 className="font-display font-bold text-base">{item.conceptName}</h3>
-                        <p className="text-xs text-[var(--accent-light)]">{item.courseCode || 'General'}</p>
-                      </div>
-                    </div>
-                    <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full', getScoreBg(item.confidenceScore), getScoreColor(item.confidenceScore))}>
-                      {Math.round((item.confidenceScore || 0) * 100)}%
-                    </span>
+          <div className="space-y-1">
+            {items.map((item, i) => (
+              <div key={item.conceptId} className="flex items-center gap-4 py-3 border-b border-divider last:border-0">
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-text">{item.conceptName}</div>
+                  <div className="flex items-center gap-3 text-xs text-muted mt-0.5">
+                    <span>{item.courseCode || 'General'}</span>
+                    <span>{item.daysSinceReview}d since review</span>
+                    <span>Wrong {item.timesWrong}x</span>
                   </div>
-
-                  <div className="flex items-center gap-4 text-xs text-[var(--text-muted)] mb-4">
-                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{item.daysSinceReview} days since review</span>
-                    <span>Wrong {item.timesWrong} time{item.timesWrong !== 1 ? 's' : ''}</span>
-                  </div>
-
-                  <button onClick={() => handleMarkReviewed(item.conceptId)} disabled={reviewingId === item.conceptId}
-                    className="btn-primary w-full text-sm !py-2.5 disabled:opacity-60">
-                    {reviewingId === item.conceptId ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <motion.span animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                          className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full inline-block" />
-                        Marking...
-                      </span>
-                    ) : (
-                      <span className="flex items-center justify-center gap-2"><CheckCircle2 className="w-4 h-4" />Mark as reviewed</span>
-                    )}
-                  </button>
-                </motion.div>
-              ))}
-            </AnimatePresence>
+                </div>
+                <span className={cn('text-sm font-mono', getScoreColor(item.confidenceScore))}>
+                  {Math.round((item.confidenceScore || 0) * 100)}%
+                </span>
+                <button onClick={() => handleMarkReviewed(item.conceptId)} disabled={reviewingId === item.conceptId}
+                  className="btn btn-ghost btn-xs text-accent disabled:opacity-40">
+                  {reviewingId === item.conceptId ? '...' : 'Reviewed'}
+                </button>
+              </div>
+            ))}
           </div>
         </>
       )}

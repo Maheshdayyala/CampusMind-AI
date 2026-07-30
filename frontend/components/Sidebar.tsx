@@ -1,129 +1,115 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/auth'
 import { getReviewDue } from '@/lib/mcp'
 import {
-  LayoutDashboard, Brain, MessageSquare, Clock, BookOpen,
-  Calendar, Upload, BarChart3, Settings, GraduationCap,
-  ChevronLeft, Zap, Bug, Mic, Users,
+  LayoutDashboard, MessageSquare, Clock, Calendar,
+  Upload, BarChart3, Settings, GraduationCap,
+  Zap, Mic, Users, Bug, Brain,
 } from 'lucide-react'
-
-const badgeRoutes: Record<string, string> = {
-  '/review': 'due',
-  '/memory': '',
-  '/chat': '',
-}
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/chat', label: 'AI Chat', icon: MessageSquare },
-  { href: '/memory', label: 'Memory Timeline', icon: Brain },
-  { href: '/review', label: 'Review Center', icon: Clock },
-  { href: '/planner', label: 'Study Planner', icon: Calendar },
-  { href: '/upload', label: 'Notes Upload', icon: Upload },
+  { href: '/chat', label: 'Chat', icon: MessageSquare },
+  { href: '/review', label: 'Review', icon: Clock },
+  { href: '/planner', label: 'Planner', icon: Calendar },
+  { href: '/memory', label: 'Memory', icon: Brain },
   { href: '/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/exam-mode', label: 'Exam Mode', icon: Zap },
-  { href: '/voice', label: 'Voice Assistant', icon: Mic },
+  { href: '/upload', label: 'Upload', icon: Upload },
+  { href: '/voice', label: 'Voice', icon: Mic },
   { href: '/faculty', label: 'Faculty', icon: Users },
   { href: '/settings', label: 'Settings', icon: Settings },
-  { href: '/developer', label: 'Developer', icon: Bug },
+  { href: '/developer', label: 'Dev', icon: Bug },
 ]
 
-interface SidebarProps {
-  collapsed: boolean
-  onToggle: () => void
-}
-
-export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
+export default function Sidebar() {
   const pathname = usePathname()
   const { studentId } = useAuth()
+  const [open, setOpen] = useState(false)
   const [reviewCount, setReviewCount] = useState<number | null>(null)
-  const [memoryCount, setMemoryCount] = useState<number | null>(null)
+  const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!studentId) return
     getReviewDue(studentId, 3).then(r => setReviewCount(r.count)).catch(() => {})
   }, [studentId])
 
-  function renderBadge(itemHref: string) {
-    if (collapsed) return null
-    if (itemHref === '/review' && reviewCount !== null && reviewCount > 0) {
-      return <span className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary-highlight text-primary min-w-[18px] text-center">{reviewCount}</span>
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (open && ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
     }
-    return null
-  }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [open])
+
+  const collapsed = !open
 
   return (
-    <aside
-      className={cn(
-        'fixed left-0 top-0 h-screen z-40 flex flex-col bg-surface border-r border-border transition-all duration-300',
-        collapsed ? 'w-[72px]' : 'w-[272px]'
-      )}
-    >
-      <div className={cn(
-        'flex items-center h-16 border-b border-border px-5',
-        collapsed ? 'justify-center' : 'justify-between'
-      )}>
-        {!collapsed && (
-          <Link href="/dashboard" className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-              <GraduationCap className="w-5 h-5 text-inverse" />
-            </div>
-            <div>
-              <div className="text-sm font-semibold text-text">CampusMind</div>
-              <div className="text-[10px] text-faint">AI copilot</div>
-            </div>
-          </Link>
-        )}
-        {collapsed && (
-          <Link href="/dashboard" className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shadow-sm">
-            <GraduationCap className="w-5 h-5 text-inverse" />
-          </Link>
-        )}
-      </div>
-
-      <nav className="flex-1 py-3 px-3 space-y-0.5 overflow-y-auto">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href
-          const Icon = item.icon
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative group',
-                collapsed && 'justify-center px-2',
-                isActive
-                  ? 'bg-primary-highlight text-primary'
-                  : 'text-muted hover:text-text hover:bg-surface-offset'
-              )}
-            >
-              <Icon className={cn('w-[18px] h-[18px] shrink-0')} />
-              {!collapsed && <span>{item.label}</span>}
-              {renderBadge(item.href)}
-              {collapsed && (
-                <div className="absolute left-full ml-2 px-2.5 py-1 rounded-lg bg-surface border border-border text-xs text-text opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 pointer-events-none shadow-sm">
-                  {item.label}
-                </div>
-              )}
-            </Link>
-          )
-        })}
-      </nav>
-
-      <div className={cn('p-3 border-t border-border', collapsed && 'flex justify-center')}>
+    <>
+      {!open && (
         <button
-          onClick={onToggle}
-          className="btn btn-sm w-full justify-center"
-          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          onClick={() => setOpen(true)}
+          className="fixed top-4 left-4 z-30 w-9 h-9 rounded-lg bg-surface border border-border flex items-center justify-center text-muted hover:text-text transition-all"
+          title="Open sidebar"
         >
-          <ChevronLeft className={cn('w-4 h-4 transition-transform', collapsed && 'rotate-180')} />
+          <GraduationCap className="w-5 h-5" />
         </button>
-      </div>
-    </aside>
+      )}
+
+      {open && (
+        <div className="fixed inset-0 z-30 bg-black/20" onClick={() => setOpen(false)} />
+      )}
+
+      <aside
+        ref={ref}
+        className={cn(
+          'fixed left-0 top-0 h-full z-40 flex flex-col bg-surface border-r border-border transition-all duration-300',
+          open ? 'w-56' : 'w-0 -translate-x-full'
+        )}
+      >
+        <div className="flex items-center justify-between h-14 px-4 border-b border-border">
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-md bg-accent flex items-center justify-center">
+              <GraduationCap className="w-4 h-4 text-inverse" />
+            </div>
+            <span className="text-sm font-medium text-text">CampusMind</span>
+          </Link>
+          <button onClick={() => setOpen(false)} className="text-muted hover:text-text transition-colors p-1">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <nav className="flex-1 py-2 px-2 space-y-0.5 overflow-y-auto">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href
+            const Icon = item.icon
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                className={cn(
+                  'flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-all duration-150',
+                  isActive
+                    ? 'bg-accent-highlight text-accent font-medium'
+                    : 'text-muted hover:text-text hover:bg-surface-offset'
+                )}
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                <span>{item.label}</span>
+                {item.href === '/review' && reviewCount !== null && reviewCount > 0 && (
+                  <span className="ml-auto text-[11px] font-medium px-1.5 py-0.5 rounded-sm bg-accent-highlight text-accent">{reviewCount}</span>
+                )}
+              </Link>
+            )
+          })}
+        </nav>
+      </aside>
+    </>
   )
 }

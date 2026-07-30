@@ -13,8 +13,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Satoshi', 'Inter', 'sans-serif'],
-        display: ['Satoshi', 'Inter', 'sans-serif'],
+        display: ['var(--font-display)', 'serif'],
+        body: ['var(--font-body)', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
       colors: {
@@ -25,12 +25,12 @@ const config: Config = {
         border: 'var(--color-border)',
         divider: 'var(--color-divider)',
         text: 'var(--color-text)',
-        muted: 'var(--color-text-muted)',
+        muted: 'var(--color-text-secondary)',
         faint: 'var(--color-text-faint)',
         inverse: 'var(--color-text-inverse)',
-        primary: 'var(--color-primary)',
-        'primary-hover': 'var(--color-primary-hover)',
-        'primary-highlight': 'var(--color-primary-highlight)',
+        accent: 'var(--color-accent)',
+        'accent-hover': 'var(--color-accent-hover)',
+        'accent-highlight': 'var(--color-accent-highlight)',
       },
       boxShadow: {
         'card': 'var(--shadow-md)',
@@ -38,25 +38,10 @@ const config: Config = {
         'sm': 'var(--shadow-sm)',
       },
       animation: {
-        'float': 'float 6s ease-in-out infinite',
-        'pulse': 'pulse 3s ease-in-out infinite',
-        'slide-up': 'slideUp 0.5s ease-out',
         'fade-in': 'fadeIn 0.5s ease-out',
         'shimmer': 'shimmer 2s infinite linear',
       },
       keyframes: {
-        float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-20px)' },
-        },
-        pulse: {
-          '0%, 100%': { transform: 'scale(1)' },
-          '50%': { transform: 'scale(1.06)' },
-        },
-        slideUp: {
-          '0%': { transform: 'translateY(20px)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' },
-        },
         fadeIn: {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },

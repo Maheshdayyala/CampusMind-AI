@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/lib/auth'
 import { listCourses, getProgressSummary, flagAtRiskTopics, type CourseInfo, type ProgressSummary, type FlagAtRiskResult } from '@/lib/mcp'
-import { BookOpen, AlertTriangle, TrendingUp, Users, BarChart3, ArrowRight } from 'lucide-react'
+import { BookOpen, AlertTriangle, TrendingUp, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import { cn } from '@/lib/utils'
 
 export default function FacultyPage() {
   const { studentId, student } = useAuth()
@@ -28,94 +29,99 @@ export default function FacultyPage() {
   }, [studentId])
 
   if (loading) return (
-    <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
-      {[1,2,3].map(i => <div key={i} className="skeleton h-24 rounded-xl" />)}
+    <div>
+      <div className="skeleton h-9 w-48 mb-2" />
+      <div className="skeleton h-5 w-64 mb-8" />
+      <div className="grid md:grid-cols-4 gap-4 mb-8">
+        {[1,2,3,4].map(i => <div key={i} className="skeleton h-24 rounded-lg" />)}
+      </div>
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="skeleton h-14 w-full" />)}</div>
+        <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="skeleton h-14 w-full" />)}</div>
+      </div>
     </div>
   )
 
   const avgC = progress?.overview?.averageConfidence ?? 0
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
-      <div className="card-hero">
-        <div className="eyebrow"><Users className="w-3 h-3" /> Faculty Dashboard</div>
-        <h1 className="text-xl font-bold">Course Overview</h1>
-        <p className="text-muted text-sm mt-1">{student?.name || studentId} &middot; {courses.length} courses enrolled</p>
+    <div>
+      <div className="mb-8">
+        <div className="text-xs text-accent uppercase tracking-wider mb-1">Faculty Dashboard</div>
+        <h1 className="font-display text-3xl text-text">Course Overview</h1>
+        <p className="text-sm text-muted mt-1">{student?.name || studentId} &middot; {courses.length} courses enrolled</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="metric-card">
-          <BookOpen className="w-5 h-5 text-primary mb-2" />
-          <div className="text-2xl font-bold">{courses.length}</div>
-          <div className="text-xs text-muted">Active Courses</div>
-        </div>
-        <div className="metric-card">
-          <BarChart3 className="w-5 h-5 text-primary mb-2" />
-          <div className="text-2xl font-bold">{avgC.toFixed(0)}%</div>
-          <div className="text-xs text-muted">Avg Confidence</div>
-        </div>
-        <div className="metric-card">
-          <AlertTriangle className="w-5 h-5 text-primary mb-2" />
-          <div className="text-2xl font-bold">{risk?.count ?? 0}</div>
-          <div className="text-xs text-muted">At-Risk Topics</div>
-        </div>
-        <div className="metric-card">
-          <TrendingUp className="w-5 h-5 text-primary mb-2" />
-          <div className="text-2xl font-bold">{progress?.overview?.studySessionsCompleted ?? 0}</div>
-          <div className="text-xs text-muted">Study Sessions</div>
-        </div>
+      <div className="grid md:grid-cols-4 gap-4 mb-8">
+        {[
+          { icon: BookOpen, label: 'Courses', value: courses.length },
+          { icon: TrendingUp, label: 'Avg Confidence', value: `${avgC.toFixed(0)}%` },
+          { icon: AlertTriangle, label: 'At-Risk Topics', value: risk?.count ?? 0 },
+          { icon: TrendingUp, label: 'Study Sessions', value: progress?.overview?.studySessionsCompleted ?? 0 },
+        ].map((s, i) => (
+          <div key={i} className="text-center p-5 rounded-lg border border-border">
+            <s.icon className="w-5 h-5 text-accent mx-auto mb-2" />
+            <div className="text-2xl font-semibold text-text">{s.value}</div>
+            <div className="text-xs text-muted">{s.label}</div>
+          </div>
+        ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="card space-y-3">
-          <h2 className="font-semibold text-sm">Courses</h2>
-          {courses.length === 0 && <p className="text-sm text-faint">No courses found.</p>}
-          {courses.map(c => (
-            <div key={c.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
-              <div>
-                <div className="text-sm font-medium">{c.title}</div>
-                <div className="text-xs text-muted">{c.code} &middot; {c.term}</div>
+      <div className="grid md:grid-cols-2 gap-6">
+        <div>
+          <h2 className="text-sm font-semibold text-text mb-4">Courses</h2>
+          {courses.length === 0 && <p className="text-sm text-muted">No courses found.</p>}
+          <div className="space-y-1">
+            {courses.map(c => (
+              <div key={c.id} className="flex items-center justify-between py-3 border-b border-divider">
+                <div>
+                  <div className="text-sm font-medium text-text">{c.title}</div>
+                  <div className="text-xs text-muted">{c.code} &middot; {c.term}</div>
+                </div>
+                <Link href={`/chat?course=${c.id}`} className="text-xs text-accent hover:underline flex items-center gap-1">
+                  Discuss <ArrowRight className="w-3 h-3" />
+                </Link>
               </div>
-              <Link href={`/chat?course=${c.id}`} className="tag">
-                Discuss <ArrowRight className="w-3 h-3 ml-1" />
-              </Link>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        <div className="card space-y-3">
-          <h2 className="font-semibold text-sm">At-Risk Topics</h2>
-          {(!risk?.atRiskTopics || risk.atRiskTopics.length === 0) && (
-            <p className="text-sm text-faint">No at-risk topics identified.</p>
+        <div>
+          <h2 className="text-sm font-semibold text-text mb-4">At-Risk Topics</h2>
+          {(!risk?.atRiskTopics || risk.atRiskTopics.length === 0) ? (
+            <p className="text-sm text-muted">No at-risk topics identified.</p>
+          ) : (
+            <div className="space-y-1">
+              {risk.atRiskTopics.slice(0, 5).map(t => (
+                <div key={t.conceptId} className="py-3 border-b border-divider">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={cn('text-xs font-mono px-1.5 py-0.5 rounded',
+                      t.riskLevel === 'critical' ? 'bg-error/10 text-error' :
+                      t.riskLevel === 'high' ? 'bg-warning/10 text-warning' : 'bg-accent/10 text-accent')}>{t.riskLevel}</span>
+                    <span className="text-sm font-medium text-text">{t.concept}</span>
+                  </div>
+                  <div className="text-xs text-muted">{t.course} &middot; confidence {t.confidenceScore.toFixed(0)}% &middot; last reviewed {t.daysSinceReview}d ago</div>
+                </div>
+              ))}
+            </div>
           )}
-          {risk?.atRiskTopics?.slice(0, 5).map(t => (
-            <div key={t.conceptId} className="py-2 border-b border-border last:border-0">
-              <div className="flex items-center gap-2">
-                <span className={`tag ${t.riskLevel === 'critical' ? 'tag-warn' : 'tag-ok'}`}>{t.riskLevel}</span>
-                <span className="text-sm font-medium">{t.concept}</span>
-              </div>
-              <div className="text-xs text-muted mt-1">{t.course} &middot; confidence {t.confidenceScore.toFixed(0)}% &middot; last reviewed {t.daysSinceReview}d ago</div>
-            </div>
-          ))}
         </div>
       </div>
 
       {risk?.summary && (
-        <div className="card">
-          <h2 className="font-semibold text-sm mb-3">Risk Summary</h2>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
-              <div className="text-lg font-bold" style={{color:'var(--color-error)'}}>{risk.summary.critical}</div>
-              <div className="text-xs text-muted">Critical</div>
-            </div>
-            <div>
-              <div className="text-lg font-bold" style={{color:'var(--color-warning)'}}>{risk.summary.high}</div>
-              <div className="text-xs text-muted">High</div>
-            </div>
-            <div>
-              <div className="text-lg font-bold" style={{color:'var(--color-success)'}}>{risk.summary.medium}</div>
-              <div className="text-xs text-muted">Medium</div>
-            </div>
+        <div className="mt-8 p-5 rounded-lg border border-border">
+          <h2 className="text-sm font-semibold text-text mb-4">Risk Summary</h2>
+          <div className="flex gap-6">
+            {[
+              { label: 'Critical', value: risk.summary.critical, color: 'text-error' },
+              { label: 'High', value: risk.summary.high, color: 'text-warning' },
+              { label: 'Medium', value: risk.summary.medium, color: 'text-accent' },
+            ].map(s => (
+              <div key={s.label}>
+                <div className={cn('text-lg font-semibold', s.color)}>{s.value}</div>
+                <div className="text-xs text-muted">{s.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       )}

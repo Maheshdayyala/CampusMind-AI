@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/lib/auth'
 import { startVoiceSession, endVoiceSession, processVoiceInput } from '@/lib/mcp'
-import { Mic, Square, Send, Volume2 } from 'lucide-react'
+import { Mic, Square, Send } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 type TranscriptEntry = { role: string; text: string; timestamp: string }
 
@@ -26,7 +27,7 @@ export default function VoicePage() {
       setSessionId(res.sessionId)
       setListening(true)
       setTranscript(res.transcript || [])
-    } catch (e: any) { alert(e.message) }
+    } catch (e: any) { setTranscript(p => [...p, { role: 'assistant', text: `Error: ${e.message}`, timestamp: new Date().toISOString() }]) }
     finally { setLoading(false) }
   }
 
@@ -36,7 +37,7 @@ export default function VoicePage() {
     try {
       const res = await endVoiceSession(studentId, sessionId)
       setTranscript(res.transcript || [])
-    } catch (e: any) { alert(e.message) }
+    } catch (e: any) { setTranscript(p => [...p, { role: 'assistant', text: `Error: ${e.message}`, timestamp: new Date().toISOString() }]) }
     finally { setSessionId(null); setListening(false); setLoading(false) }
   }
 
@@ -56,22 +57,21 @@ export default function VoicePage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-6 py-8 space-y-8">
-      <div className="card-hero text-center">
-        <div className={`orb ${listening ? 'scale-110' : ''}`} />
-        <h1 className="text-xl font-bold mb-1">Voice Assistant</h1>
-        <p className="text-muted text-sm mb-6">
+    <div>
+      <div className="mb-8">
+        <h1 className="font-display text-3xl text-text">Voice Assistant</h1>
+        <p className="text-sm text-muted mt-1">
           {listening ? 'Session active — speak or type your question' : 'Start a voice session to ask questions naturally'}
         </p>
-        <div className="flex items-center justify-center gap-3">
+        <div className="mt-4">
           {!sessionId ? (
             <button onClick={handleStart} disabled={loading} className="btn btn-primary">
               <Mic className="w-4 h-4" />
               {loading ? 'Starting...' : 'Start Session'}
             </button>
           ) : (
-            <button onClick={handleEnd} disabled={loading} className="btn" style={{color:'var(--color-error)',borderColor:'var(--color-error)'}}>
-              <Square className="w-4 h-4" />
+            <button onClick={handleEnd} disabled={loading} className="btn btn-sm text-error border border-error/30">
+              <Square className="w-3.5 h-3.5" />
               {loading ? 'Ending...' : 'End Session'}
             </button>
           )}
@@ -79,24 +79,18 @@ export default function VoicePage() {
       </div>
 
       {sessionId && (
-        <div className="card space-y-4">
-          <div className="flex items-center gap-2 text-sm text-muted">
-            <Volume2 className="w-4 h-4 text-primary" />
-            <span>Session active</span>
-            <span className="tag tag-ok ml-auto">live</span>
-          </div>
-
-          <div className="space-y-3 max-h-[400px] overflow-y-auto">
+        <div className="max-w-2xl space-y-4">
+          <div className="space-y-3 max-h-[420px] overflow-y-auto">
             {transcript.length === 0 && (
-              <p className="text-center text-faint py-8">No conversation yet. Type your first question below.</p>
+              <p className="text-center text-sm text-muted py-12">No conversation yet. Type your first question below.</p>
             )}
             {transcript.map((entry, i) => (
-              <div key={i} className={`flex ${entry.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${
+              <div key={i} className={cn('flex', entry.role === 'user' ? 'justify-end' : 'justify-start')}>
+                <div className={cn('max-w-[80%] rounded-lg px-4 py-2.5 text-sm',
                   entry.role === 'user'
-                    ? 'bg-primary text-inverse rounded-br-md'
-                    : 'bg-surface-offset text-text rounded-bl-md'
-                }`}>
+                    ? 'bg-accent text-inverse rounded-br-sm'
+                    : 'bg-offset text-text rounded-bl-sm'
+                )}>
                   {entry.text}
                 </div>
               </div>
@@ -105,16 +99,10 @@ export default function VoicePage() {
           </div>
 
           <div className="flex gap-2">
-            <input
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSend()}
-              placeholder="Type your question..."
-              className="input-field flex-1 border border-border rounded-full px-4 py-2.5 text-sm"
-              disabled={loading}
-            />
-            <button onClick={handleSend} disabled={loading || !input.trim()} className="btn btn-primary btn-sm !rounded-full">
-              <Send className="w-4 h-4" />
+            <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()}
+              placeholder="Type your question..." className="input-field flex-1" disabled={loading} />
+            <button onClick={handleSend} disabled={loading || !input.trim()} className="btn btn-primary btn-sm">
+              <Send className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
