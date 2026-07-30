@@ -11,7 +11,7 @@ interface AuthState {
 }
 
 interface AuthContextType extends AuthState {
-  login: (studentId: string) => Promise<void>
+  login: (email: string, password: string) => Promise<void>
   logout: () => void
   studentId: string | null
 }
@@ -41,8 +41,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const login = useCallback(async (studentId: string) => {
-    const result = await mcpLogin(studentId)
+  const login = useCallback(async (email: string, password: string) => {
+    const result = await mcpLogin(email, password)
     if (result.ok) {
       localStorage.setItem('campusmind_student', JSON.stringify(result.student))
       setState({ token: result.token, student: result.student, loading: false })

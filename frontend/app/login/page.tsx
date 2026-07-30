@@ -6,9 +6,9 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/auth'
 import { GraduationCap, ArrowRight, Sparkles, User, Eye, EyeOff } from 'lucide-react'
 
-const DEMO_ACCOUNTS: Record<string, { id: string; name: string; program: string }> = {
-  'aisha@': { id: 's1', name: 'Aisha', program: 'BSc Computer Science' },
-  'rohan@': { id: 's2', name: 'Rohan', program: 'BSc Physics' },
+const DEMO_ACCOUNTS: Record<string, { email: string; password: string; name: string; program: string }> = {
+  'aisha@university.edu': { email: 'aisha@university.edu', password: 'password123', name: 'Aisha', program: 'BSc Computer Science' },
+  'rohan@university.edu': { email: 'rohan@university.edu', password: 'pass456', name: 'Rohan', program: 'BSc Physics' },
 }
 
 export default function LoginPage() {
@@ -68,7 +68,6 @@ export default function LoginPage() {
             ctx.moveTo(particles[i].x, particles[i].y)
             ctx.lineTo(particles[j].x, particles[j].y)
             ctx.strokeStyle = `rgba(1, 105, 111, ${0.08 * (1 - dist / 120)})`
-            ctx.lineWidth = 0.5
             ctx.stroke()
           }
         }
@@ -93,11 +92,8 @@ export default function LoginPage() {
     setError('')
     setIsLoading(true)
 
-    const match = Object.entries(DEMO_ACCOUNTS).find(([key]) => email.toLowerCase().includes(key))
-    const studentId = match ? match[1].id : 's1'
-
     try {
-      await login(studentId)
+      await login(email, password)
       router.replace('/dashboard')
     } catch (err: any) {
       setError(err.message || 'Login failed')
@@ -106,8 +102,9 @@ export default function LoginPage() {
     }
   }
 
-  const quickSelect = (key: string) => {
-    setEmail(key)
+  const quickSelect = (acc: { email: string; password: string }) => {
+    setEmail(acc.email)
+    setPassword(acc.password)
   }
 
   return (
@@ -213,21 +210,21 @@ export default function LoginPage() {
 
             <div className="mt-8 pt-6 border-t border-[rgba(40,37,29,0.12)]">
               <p className="text-xs text-[#a8a59d] text-center mb-3">
-                Demo accounts — use any password
+                Demo accounts — click to autofill
               </p>
               <div className="flex flex-col gap-2">
                 {Object.entries(DEMO_ACCOUNTS).map(([key, acc]) => (
                   <button
                     key={key}
-                    onClick={() => quickSelect(key)}
+                    onClick={() => quickSelect(acc)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all duration-200 ${
-                      email === key
+                      email === acc.email
                         ? 'bg-[#dce9e7] border-[#01696f]/30 text-[#01696f] shadow-[0_0_0_1px_rgba(1,105,111,0.15)]'
                         : 'bg-[#fbfbf9] border-[rgba(40,37,29,0.08)] text-[#6d6b66] hover:bg-[#f3f0ec] hover:border-[rgba(40,37,29,0.15)]'
                     }`}
                   >
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-colors duration-200 ${
-                      email === key
+                      email === acc.email
                         ? 'bg-[#01696f] text-[#f9f8f4]'
                         : 'bg-[#f3f0ec] text-[#6d6b66]'
                     }`}>
@@ -237,13 +234,13 @@ export default function LoginPage() {
                       <div className="text-sm font-medium truncate">{acc.name}</div>
                       <div className="text-[11px] opacity-70 truncate">{acc.program}</div>
                     </div>
-                    <User className={`w-4 h-4 shrink-0 transition-opacity duration-200 ${email === key ? 'opacity-100' : 'opacity-0'}`} />
+                    <div className="text-[11px] text-[#a8a59d] font-mono">{acc.email.split('@')[0]}</div>
                   </button>
                 ))}
               </div>
               <div className="flex items-center justify-center gap-2 mt-4 text-xs text-[#a8a59d]">
                 <Sparkles className="w-3 h-3" />
-                <span>Use <code className="px-1.5 py-0.5 rounded-md bg-[#f3f0ec] text-[#6d6b66] text-[11px] font-mono">aisha@</code> or <code className="px-1.5 py-0.5 rounded-md bg-[#f3f0ec] text-[#6d6b66] text-[11px] font-mono">rohan@</code> to log in instantly</span>
+                <span>Password for Aisha: <code className="px-1.5 py-0.5 rounded-md bg-[#f3f0ec] text-[#6d6b66] text-[11px] font-mono">password123</code> &middot; Rohan: <code className="px-1.5 py-0.5 rounded-md bg-[#f3f0ec] text-[#6d6b66] text-[11px] font-mono">pass456</code></span>
               </div>
             </div>
           </div>

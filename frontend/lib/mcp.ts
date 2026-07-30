@@ -125,9 +125,9 @@ export async function mcpRequest<T = unknown>(method: string, params?: unknown):
 
 export interface StudentInfo { id: string; name: string; program: string; year: number }
 export interface LoginResult { ok: boolean; token: string; student: StudentInfo; message: string }
-export async function login(studentId: string): Promise<LoginResult> {
-  const result = await callTool<LoginResult>('login', { studentId })
-  if (result.ok) setJwt(result.token)
+export async function login(email: string, password: string): Promise<LoginResult> {
+  const result = await callTool<LoginResult>('login', { email, password })
+  if (result.token) setJwt(result.token)
   return result
 }
 
