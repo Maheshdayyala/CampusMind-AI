@@ -75,7 +75,17 @@ async function jsonRpc(method: string, params?: unknown) {
   const sid = res.headers.get('mcp-session-id')
   if (sid) sessionId = sid
 
-  const json = await res.json()
+  const text = await res.text()
+
+  if (text.startsWith('event:')) {
+    const dataLine = text.split('\n').find(l => l.startsWith('data:'))
+    if (!dataLine) throw new Error('No data in SSE response')
+    const json = JSON.parse(dataLine.slice(5).trim())
+    if (json.error) throw new Error(json.error.message || 'MCP error')
+    return json.result
+  }
+
+  const json = JSON.parse(text)
   if (json.error) throw new Error(json.error.message || 'MCP error')
   return json.result
 }
