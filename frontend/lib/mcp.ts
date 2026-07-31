@@ -1,4 +1,4 @@
-const MCP_URL = process.env.NEXT_PUBLIC_MCP_URL || ''
+const MCP_URL = process.env.NEXT_PUBLIC_MCP_URL?.replace(/\/$/, '') || ''
 export const ENDPOINT = `${MCP_URL}/mcp`
 
 let sessionId: string | null = null
