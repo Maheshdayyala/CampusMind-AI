@@ -8,6 +8,8 @@ export const fadeUp: Variants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
 }
 
+export const slideUp = fadeUp
+
 export const fadeIn: Variants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
@@ -142,6 +144,8 @@ export function PageWrapper({ children, className }: { children: ReactNode; clas
     </motion.div>
   )
 }
+
+export const PageTransition = PageWrapper
 
 export const hoverScale = { whileHover: { scale: 1.02 }, whileTap: { scale: 0.98 }, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }
 export const hoverLift = { whileHover: { y: -2, boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }, whileTap: { y: 0 }, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }

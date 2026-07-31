@@ -242,27 +242,15 @@ export async function logQuizResult(studentId: string, conceptId: string, correc
 export interface WeakTopicsResult { studentId: string; count: number; weakTopics: { conceptId: string; concept: string; courseCode: string | null; confidenceScore: number; timesWrong: number; daysSinceReview: number; urgencyScore: number }[] }
 export async function getWeakTopics(studentId: string): Promise<WeakTopicsResult> {
   return track('resources/read (weak-topics)', { studentId }, async () => {
-    const res = await fetch(`${MCP_URL}/mcp`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(getJwt() ? { Authorization: `Bearer ${getJwt()}` } : {}) },
-      body: JSON.stringify({ jsonrpc: '2.0', id: rpcId++, method: 'resources/read', params: { uri: `student://${studentId}/weak-topics` } }),
-    })
-    const json = await res.json()
-    if (json.error) throw new Error(json.error.message || 'Resource error')
-    return JSON.parse(json.result.contents?.[0]?.text || json.result.text || '{}')
+    const r = await mcpRequest<{ contents?: { text: string }[]; text?: string }>('resources/read', { uri: `student://${studentId}/weak-topics` })
+    return JSON.parse(r.contents?.[0]?.text || r.text || '{}')
   })
 }
 
 export async function getStudentMemory(studentId: string): Promise<unknown> {
   return track('resources/read (memory)', { studentId }, async () => {
-    const res = await fetch(`${MCP_URL}/mcp`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(getJwt() ? { Authorization: `Bearer ${getJwt()}` } : {}) },
-      body: JSON.stringify({ jsonrpc: '2.0', id: rpcId++, method: 'resources/read', params: { uri: `student://${studentId}/memory` } }),
-    })
-    const json = await res.json()
-    if (json.error) throw new Error(json.error.message || 'Resource error')
-    return JSON.parse(json.result.contents?.[0]?.text || json.result.text || '{}')
+    const r = await mcpRequest<{ contents?: { text: string }[]; text?: string }>('resources/read', { uri: `student://${studentId}/memory` })
+    return JSON.parse(r.contents?.[0]?.text || r.text || '{}')
   })
 }
 

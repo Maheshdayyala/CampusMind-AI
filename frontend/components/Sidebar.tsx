@@ -25,7 +25,7 @@ const navItems = [
   { href: '/voice', label: 'Voice', icon: Mic },
   { href: '/faculty', label: 'Faculty', icon: Users },
   { href: '/settings', label: 'Settings', icon: Settings },
-  { href: '/mcp', label: 'MCP', icon: Terminal },
+  { href: '/mcp-guide', label: 'MCP Guide', icon: Terminal },
   { href: '/developer', label: 'Dev', icon: Bug },
 ]
 

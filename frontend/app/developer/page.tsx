@@ -10,11 +10,8 @@ export default function DeveloperPage() {
   const [resources, setResources] = useState<any[] | null>(null)
   const [prompts, setPrompts] = useState<any[] | null>(null)
   const [pingStatus, setPingStatus] = useState<'idle' | 'ok' | 'error'>('idle')
-  const [buildInfo, setBuildInfo] = useState('')
-
   useEffect(() => {
     document.title = 'MCP Diagnostics — CampusMind AI'
-    fetch('/package.json').then(r => r.json()).then(p => setBuildInfo(`v${p.version}`)).catch(() => {})
   }, [])
 
   const handlePing = async () => {
@@ -44,7 +41,7 @@ export default function DeveloperPage() {
       <div className="mb-8">
         <div className="text-xs text-accent uppercase tracking-wider mb-1">Developer Panel</div>
         <h1 className="font-display text-3xl text-text">MCP Diagnostics</h1>
-        <p className="text-sm text-muted mt-1">{buildInfo}</p>
+        <p className="text-sm text-muted mt-1">v1.0.0</p>
       </div>
 
       <div className="grid md:grid-cols-2 gap-4 mb-6">
